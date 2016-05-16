@@ -1,0 +1,19 @@
+.bask-banner {
+    background: rgba(0, 180, 218, 1);
+    border-color: #ccc;
+    box-shadow: 0 0 2px 0 #ccc;
+    height: 140px;
+    border-bottom: 0; !important;
+    border-radius: 0;
+}
+.navbar {
+    position: relative;
+    margin-bottom: 0; !important
+    border: 1px solid transparent;
+}
+
+.mainLogo{
+    width: 195px;
+    height: 90px;
+    left: 50px;
+}

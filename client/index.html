@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="marketManager">
+<head>
+
+    <meta charset="UTF-8">
+    <title>Bask Marketing Manager</title>
+
+    <!-- Lib CSS -->
+    <link rel="stylesheet" href="libs/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="libs/css/font-awesome.min.css"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/banner-style.css"/>
+    <link rel="stylesheet" href="css/styling.css"/>
+    <link rel="stylesheet" href="css/side-bar.css"/>
+    <link rel="stylesheet" href="css/campaign-template-style.css"/>
+
+</head>
+<body>
+
+<!-- Banner -->
+<nav class="navbar bask-banner">
+        <br>
+        <div style="width: 350px; text-align: center">
+            <img class="mainLogo" src="imgs/bask-logo2.png"/>
+        </div>
+</nav>
+
+<!-- Menu taken from Bootsnipp, The code is open source and okay for us to use. -->
+<!-- Link to page: http://bootsnipp.com/snippets/featured/admin-side-menu  Link to licence: http://bootsnipp.com/license -->
+<div class="row">
+    <!-- Menu -->
+    <div class="side-menu">
+
+        <nav class="navbar navbar-custom-grey" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <div class="brand-wrapper">
+                    <!-- Hamburger -->
+                    <button type="button" class="navbar-toggle">
+                        <span class="sr-only">Toggle navigation</span>
+                        <i class="fa fa-bars fa-2x"></i>
+                    </button>
+
+                    <!-- Brand -->
+                    <div class="brand-name-wrapper">
+                        <img src="imgs/adwords-logo.png" class="adWords-logo"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Main Menu -->
+            <div class="side-menu-container" ng-controller="navController as nav">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{active: nav.isActive('/campaigns')}" ><a ui-sref="campaigns">Campaigns</a></li>
+                    <li ng-class="{active: nav.isActive('/rules')}" ><a ui-sref="rules">Rules</a></li>
+                    <li ng-class="{active: nav.isActive('/records')}" ><a ui-sref="records">Records</a></li>
+
+                    <!-- Plans Menu-->
+                    <li class="panel panel-default" id="dropdown2">
+                        <a data-toggle="collapse" data-target="#dropdown-lvl1">
+                             Plans <span class="caret"></span>
+                        </a>
+
+                        <!-- Dropdown level 1 -->
+                        <div id="dropdown-lvl1" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <ul class="nav navbar-nav">
+                                    <li><a href="#">Link</a></li>
+                                    <li><a href="#">Link</a></li>
+                                    <li><a href="#">Link</a></li>
+
+                                    <!-- Dropdown level 2 -->
+                                    <li class="panel panel-default" id="dropdown">
+                                        <a data-toggle="collapse" href="#dropdown-lvl2">
+                                             Sub Level <span class="caret"></span>
+                                        </a>
+                                        <div id="dropdown-lvl2" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <ul class="nav navbar-nav">
+                                                    <li><a href="#">Link</a></li>
+                                                    <li><a href="#">Link</a></li>
+                                                    <li><a href="#">Link</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li><a href="#"><i class="fa fa-cloud-download"></i> Link</a></li>
+
+                </ul>
+            </div>
+        </nav>
+
+    </div>
+    <!-- Main Content -->
+    <div class="container-fluid" style="overflow-y: visible">
+        <div class="side-body">
+
+            <!-- UI View -->
+            <div ui-view class="user-interface"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<!--libraries-->
+<script src="libs/js/angular.min.js"></script>
+<script src="libs/js/jquery.min.js"></script>
+<script src="libs/js/bootstrap.min.js"></script>
+<script src="libs/js/ui-router.min.js"></script>
+
+<!-- Styling JavaScript  -->
+<script src="js/styling/styleScript.js"></script>
+
+<!-- Directives -->
+<script src="js/directives/campaign.js"></script>
+<script src="js/directives/ad-group.js"></script>
+
+<!-- Services -->
+<script src="js/services/planService.js"></script>
+<script src="js/services/campaignService.js"></script>
+
+<!--Controllers-->
+<script src="js/controllers/navigationCont.js"></script>
+<script src="js/controllers/campaignCont.js"></script>
+<script src="js/controllers/campaignViewCont.js"></script>
+<script src="js/controllers/ruleCont.js"></script>
+<script src="js/controllers/recordCont.js"></script>
+
+<!--App.js-->
+<script src="js/app.js"></script>
+
+</body>
+</html>
