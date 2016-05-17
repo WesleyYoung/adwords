@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 
 var AdWords = require('googleads-node-lib');
 
+var ga = require('google-adwords');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -21,30 +23,39 @@ var assert = require('assert');
 var clientCustomerId = "403-762-1647";
 
 var adWordsCredentials = {
-    ADWORDS_CLIENT_ID: '1029228575607-v1uo3r25s1q1hvm9crdj2cmirpq"Name1ndb1.apps.googleusercontent.com',
+    ADWORDS_CLIENT_ID: '1029228575607-v1uo3r25s1q1hvm9crdj2cmirpq1ndb1.apps.googleusercontent.com',
     ADWORDS_SECRET: 'SkIeigyoNjTUAETvQbMBKLT3',
     ADWORDS_DEVELOPER_TOKEN: 'VobDWYcEt2llfXIAjOHDtg',
     ADWORDS_REFRESH_TOKEN: '1/22noNp0i70anuQmNuDbaSpjp7iftx-JFoVRmTsIV9dYMEudVrK5jSpoR30zcRFq6',
     ADWORDS_CLIENT_CUSTOMER_ID: clientCustomerId,
-    ADWORDS_USER_AGENT: 'Bask'
+    ADWORDS_USER_AGENT: 'Bask AdWords'
 };
 
-var Service = new AdWords.ManagedCustomerService(adWordsCredentials);
-
-//var service = new AdWords.CampaignService(adWordsCredentials);
-//console.log(service.selectable);
-//var selector = new AdWords.Selector.model({
-//    dateRange: {min: '19700101', max: '20160505'},
-//    fields: service.selectable,
-//    ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
-//    paging: {startIndex: 1, numberResults: 1},
-//    predicates: []
-//});
-
 function returnCampaigns(res){
+    var service = new AdWords.CampaignPerformanceReport(adWordsCredentials);
+    var selector = new AdWords.Selector.model({
+        fields: service.selectable,
+        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+        paging: {startIndex: 0, numberResults: 100}
+    });
+    service.getReport({
+        dateRangeType: 'CUSTOM_DATE',
+        dateMin: '19700101',
+        dateMax: '20380101',
+        downloadFormat: 'XML',
+        fieldNames: service.defaultFieldNames
+    }, function(error, response, body){
+        //if (error) console.log(error);
+        console.log(body);
+    });
+    console.log();
+
+    res.end();
+    //var service = new AdWords.AdGroupService(adWordsCredentials);
+
 
     //service.get(clientCustomerId, selector, function(err, results) {
-    //    if (err) console.log(err);
+    //    //if (err) console.log(err);
     //    //else console.log(JSON.stringify(results, null, 2));
     //    res.end(JSON.stringify(results));
     //});

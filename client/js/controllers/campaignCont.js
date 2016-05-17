@@ -7,27 +7,22 @@
     angular.module('campaignController', [])
         .controller('campaignController', CampaignController);
 
-    CampaignController.$inject = ["campaignService", "$http"];
+    CampaignController.$inject = ["campaignService", "$http", "$scope"];
 
-    function CampaignController(campaignService, $http) {
+    function CampaignController(campaignService, $http, $scope) {
         var cc = this;
-        this.$http=$http;
+        cc.$http = $http;
 
-        cc.campaigns=campaignService;
+        $http.get('/getcampaigns').then(function(results){
+            console.log(results.data.entries);
+            cc.campaigns=results.data.entries;
+        });
 
-
+        console.log("Trying....", cc.campaigns);
     }
 
     CampaignController.prototype.toggleOnStat=function(id){
         //...
-    };
-
-    CampaignController.prototype.getCampaigns=function(){
-        var $http=this.$http;
-
-        $http.get('/getcampaigns').then(function(results){
-            console.log(results);
-        })
     };
 
 }());
