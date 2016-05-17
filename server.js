@@ -10,6 +10,8 @@ var AdWords = require('googleads-node-lib');
 
 var ga = require('google-adwords');
 
+var parseString=require('xml2js').parseString;
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -31,34 +33,51 @@ var adWordsCredentials = {
     ADWORDS_USER_AGENT: 'Bask AdWords'
 };
 
+var reportService = new AdWords.CampaignPerformanceReport(adWordsCredentials);
+var campaignService = new AdWords.CampaignService(adWordsCredentials);
+
 function returnCampaigns(res){
-    var service = new AdWords.CampaignPerformanceReport(adWordsCredentials);
+    var jsonObj;
+    var campaignObj;
+    var reqError=false;
     var selector = new AdWords.Selector.model({
-        fields: service.selectable,
+        fields: campaignService.selectable,
         ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
         paging: {startIndex: 0, numberResults: 100}
     });
-    service.getReport({
+    reportService.getReport({
         dateRangeType: 'CUSTOM_DATE',
         dateMin: '19700101',
         dateMax: '20380101',
         downloadFormat: 'XML',
-        fieldNames: service.defaultFieldNames
+        fieldNames: reportService.defaultFieldNames,
+        clientCustomerId: clientCustomerId
     }, function(error, response, body){
-        //if (error) console.log(error);
         console.log(body);
+        if(error){
+            console.log(error);
+            reqError=true;
+        }
+        parseString(body, function(err, result){
+            if(err){
+                console.log(err);
+                reqError=true;
+            }
+            jsonObj=result;
+        })
     });
-    console.log();
-
-    res.end();
-    //var service = new AdWords.AdGroupService(adWordsCredentials);
-
-
-    //service.get(clientCustomerId, selector, function(err, results) {
-    //    //if (err) console.log(err);
-    //    //else console.log(JSON.stringify(results, null, 2));
-    //    res.end(JSON.stringify(results));
-    //});
+    campaignService.get(clientCustomerId, selector, function(err, results) {
+        if (err){
+            console.log(err);
+            reqError=true;
+        }
+        //else console.log(JSON.stringify(results, null, 2));
+        //res.end(JSON.stringify(results));
+        campaignObj=results;
+        campaignObj.reporting=jsonObj;
+        console.log(campaignObj);
+        res.end(JSON.stringify(campaignObj));
+    });
 }
 
 app.get('/getcampaigns', function(req, res){

@@ -14,7 +14,7 @@
         cc.$http = $http;
 
         $http.get('/getcampaigns').then(function(results){
-            console.log(results.data.entries);
+            console.log(results.data);
             cc.campaigns=results.data.entries;
         });
 
