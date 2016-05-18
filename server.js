@@ -8,8 +8,6 @@ var bodyParser = require('body-parser');
 
 var AdWords = require('googleads-node-lib');
 
-var ga = require('google-adwords');
-
 var parseString=require('xml2js').parseString;
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,11 +31,27 @@ var adWordsCredentials = {
     ADWORDS_USER_AGENT: 'Bask AdWords'
 };
 
-var reportService = new AdWords.CampaignPerformanceReport(adWordsCredentials);
+var campaignReportService = new AdWords.CampaignPerformanceReport(adWordsCredentials);
+var adGroupReportService = new AdWords.AdGroupPerformanceReport(adWordsCredentials);
+var accReportService = new AdWords.AccountPerformanceReport(adWordsCredentials);
+//var budgetReportService = new AdWords.BudgetPerformanceReport(adWordsCredentials);
+//var clickReportService = new AdWords.ClickPerformanceReport(adWordsCredentials);
+
+var reports = [
+    campaignReportService,
+    adGroupReportService,
+    accReportService
+    //budgetReportService,
+    //clickReportService
+];
+
 var campaignService = new AdWords.CampaignService(adWordsCredentials);
 
-function returnCampaigns(res){
-    var jsonObj;
+
+
+
+
+function returnCampaigns(req, res){
     var campaignObj;
     var reqError=false;
     var selector = new AdWords.Selector.model({
@@ -45,44 +59,57 @@ function returnCampaigns(res){
         ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
         paging: {startIndex: 0, numberResults: 100}
     });
-    reportService.getReport({
-        dateRangeType: 'CUSTOM_DATE',
-        dateMin: '19700101',
-        dateMax: '20380101',
-        downloadFormat: 'XML',
-        fieldNames: reportService.defaultFieldNames,
-        clientCustomerId: clientCustomerId
-    }, function(error, response, body){
-        console.log(body);
-        if(error){
-            console.log(error);
-            reqError=true;
-        }
-        parseString(body, function(err, result){
-            if(err){
-                console.log(err);
-                reqError=true;
-            }
-            jsonObj=result;
-        })
-    });
     campaignService.get(clientCustomerId, selector, function(err, results) {
         if (err){
             console.log(err);
             reqError=true;
         }
-        //else console.log(JSON.stringify(results, null, 2));
-        //res.end(JSON.stringify(results));
-        campaignObj=results;
-        campaignObj.reporting=jsonObj;
-        console.log(campaignObj);
-        res.end(JSON.stringify(campaignObj));
+        campaignObj=JSON.stringify(results.entries);
+        //console.log(JSON.stringify(results.entries));
+        var iter = JSON.parse(campaignObj);
+        console.log(iter);
+
+        res.end(campaignObj);
     });
 }
 
-app.get('/getcampaigns', function(req, res){
-    returnCampaigns(res);
-});
+function returnReports(req, res){
+    var output = {};
+    var count = 0;
+    function sendGet(x){
+        count++;
+        reports[x].getReport({
+            dateRangeType: 'CUSTOM_DATE',
+            dateMin: '19700101',
+            dateMax: '20380101',
+            downloadFormat: 'XML',
+            fieldNames: reports[x].defaultFieldNames,
+            clientCustomerId: clientCustomerId
+        }, function(error, response, body){
+            if(error){
+                console.log(error);
+            }
+            parseString(body, function(err, result){
+                if(err){
+                    console.log(err);
+                }
+                var n = "report-name";
+                console.log(result.report[n][0].$.name);
+                output[result.report[n][0].$.name]=result;
+                if(count<reports.length){
+                    sendGet(count);
+                }else{
+                    res.end(JSON.stringify(output));
+                }
+            })
+        });
+    }
+    sendGet(count);
+}
+
+app.get('/getcampaigns', returnCampaigns);
+
+app.get('/getreports', returnReports);
 
 
 var port = 3343;

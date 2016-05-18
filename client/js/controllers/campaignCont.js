@@ -15,7 +15,7 @@
 
         $http.get('/getcampaigns').then(function(results){
             console.log(results.data);
-            cc.campaigns=results.data.entries;
+            cc.campaigns=results.data;
         });
 
         console.log("Trying....", cc.campaigns);

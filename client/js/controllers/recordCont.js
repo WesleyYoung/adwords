@@ -7,10 +7,15 @@
     angular.module('recordController', [])
         .controller('recordController', recordController);
 
-    recordController.$inject = [];
+    recordController.$inject = ["$http"];
 
-    function recordController() {
+    function recordController($http) {
         var rc = this;
+
+        $http.get('/getreports')
+        .then(function(result){
+                console.log(result);
+            })
 
     }
 
