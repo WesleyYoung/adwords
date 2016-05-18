@@ -5,6 +5,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var async = require('async');
 
 var AdWords = require('googleads-node-lib');
 
@@ -52,24 +53,23 @@ var campaignService = new AdWords.CampaignService(adWordsCredentials);
 
 
 function returnCampaigns(req, res){
-    var campaignObj;
+    var cModels, cById;
     var reqError=false;
     var selector = new AdWords.Selector.model({
         fields: campaignService.selectable,
         ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
         paging: {startIndex: 0, numberResults: 100}
     });
-    campaignService.get(clientCustomerId, selector, function(err, results) {
-        if (err){
-            console.log(err);
-            reqError=true;
-        }
-        campaignObj=JSON.stringify(results.entries);
-        //console.log(JSON.stringify(results.entries));
-        var iter = JSON.parse(campaignObj);
-        console.log(iter);
-
-        res.end(campaignObj);
+    campaignService.get(clientCustomerId,
+        selector,
+        function(err, results) {
+            if (err){
+                console.log(err);
+                reqError=true;
+            }
+            cModels=results.entries.models;
+            cById=results.entries._byId;
+            res.end(JSON.stringify({models: cModels, byId: cById}));
     });
 }
 
@@ -107,9 +107,99 @@ function returnReports(req, res){
     sendGet(count);
 }
 
+function BlanketCampaignChange(req, res){
+    var toStatus = req.body.toStatus;
+    var campaignArray;
+    var errorList=[];
+    var successfulStateChanges=0;
+    var selector = new AdWords.Selector.model({
+        fields: campaignService.selectable,
+        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+        paging: {startIndex: 0, numberResults: 100}
+    });
+    campaignService.get(
+        adWordsCredentials.ADWORDS_CLIENT_CUSTOMER_ID,
+        selector,
+        function(err, results) {
+            campaignArray=results.entries.models;
+            async.series([
+                function(cb){
+                    var count = 0;
+                    function callGoogle(i){
+                        count++;
+                        campaignArray[i].set("status", toStatus);
+                        campaignService.mutateSet(
+                            adWordsCredentials.ADWORDS_CLIENT_CUSTOMER_ID,
+                            campaignArray[i],
+                            function(err, results){
+                                if(err){
+                                    parseString(err.body, function(err, results){
+                                        errorList.push({errorBody: results, campaignName: campaignArray[i].attributes.name})
+                                    });
+                                    console.log(`There was an issue trying to set the status of campaign: ${campaignArray[i].attributes.name} to ${toStatus}`);
+                                }else{
+                                    successfulStateChanges++;
+                                }
+                                if(count<campaignArray.length){
+                                    callGoogle(count);
+                                }else{
+                                    res.end({errors: errorList, message: `${successfulStateChanges} out of ${campaignArray.length} successfully changed to ${toStatus}`});
+                                    cb(err);
+                                }
+                            }
+                        )
+                    }
+                    callGoogle(count);
+                }
+            ]);
+        }
+    );
+}
+
+function changeCampaignStatus(req, res){
+    var toStatus = req.body.toStatus;
+    var id = req.body.id;
+    var campaign;
+    var selector = new AdWords.Selector.model({
+        fields: campaignService.selectable,
+        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+        paging: {startIndex: 0, numberResults: 100}
+    });
+    campaignService.get(
+        adWordsCredentials.ADWORDS_CLIENT_CUSTOMER_ID,
+        selector,
+        function(err, results){
+            campaign=results.entries._byId[id];
+            async.series([
+                function(cb){
+                    campaign.set('status', toStatus);
+                    campaignService.mutateSet(
+                        adWordsCredentials.ADWORDS_CLIENT_CUSTOMER_ID,
+                        campaign,
+                        function(err, response){
+                            var message;
+                            if(err){
+                                console.log(err);
+                                message = `There was an error changing campaign: ${campaign.attributes.name} to ${toStatus}, please check the error variable for more information`
+                            }else{
+                                message = `Campaign: ${campaign.attributes.name}'s status has been changed to ${toStatus}`;
+                            }
+                            res.end(JSON.stringify({error: err, message: message}))
+                        }
+                    )
+                }
+            ])
+        }
+    )
+}
+
 app.get('/getcampaigns', returnCampaigns);
 
 app.get('/getreports', returnReports);
+
+app.post('/changeallcampaignstates', BlanketCampaignChange);
+
+app.post('/changecampaignstatus', changeCampaignStatus);
 
 
 var port = 3343;

@@ -15,14 +15,37 @@
 
         $http.get('/getcampaigns').then(function(results){
             console.log(results.data);
-            cc.campaigns=results.data;
+            cc.campaigns=results.data.models;
+            cc.campaignsById=results.data.byId;
+            console.log(cc.campaignsById);
         });
 
         console.log("Trying....", cc.campaigns);
     }
 
     CampaignController.prototype.toggleOnStat=function(id){
-        //...
+        var cc = this;
+        var $http = cc.$http;
+        var toStatus;
+        cc.campaignsById[id].status=="PAUSED"?toStatus="ENABLED":toStatus="PAUSED";
+        $http.post('/changecampaignstatus',{
+            id: id,
+            toStatus: toStatus
+        }).then(function(response){
+            console.log(response.data.message);
+            cc.getCampaigns();
+        })
     };
+
+    CampaignController.prototype.getCampaigns=function(){
+        var cc = this;
+        var $http = cc.$http;
+        $http.get('/getcampaigns').then(function(results){
+            console.log(results.data);
+            cc.campaigns=results.data.models;
+            cc.campaignsById=results.data.byId;
+            console.log(cc.campaignsById);
+        });
+    }
 
 }());
