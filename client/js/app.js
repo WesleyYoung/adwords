@@ -14,7 +14,12 @@
         "campaignController",
         "campaignViewController",
         "ruleController",
-        "recordController"
+        "recordController",
+        "ui.grid",
+        "ui.grid.selection",
+        "ui.grid.edit",
+        "ui.grid.pagination",
+        "ui.grid.resizeColumns"
     ])
 
         .config(["$stateProvider", "$urlRouterProvider",

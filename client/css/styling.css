@@ -1,5 +1,6 @@
 .user-interface{
     position: inherit;
+    height: 100%;
 }
 
 .campaign{
@@ -29,4 +30,50 @@ ul, menu, dir {
     background: rgba(0, 180, 218, 1);
     border-color: rgba(67, 235, 255, 1);
     color: #fff;
+}
+
+h3 {
+    margin-top: 0;
+}
+h4 {
+    margin-top: 6px !important;
+}
+.top-margin {
+    margin-top: 50px;
+}
+input[type=text], button {
+    border: black 1px solid;
+}
+.my-grid {
+    /*width: 500px;*/
+    height: 100%;
+}
+.ui-grid-row .ui-grid-cell{
+    height: 40px !important;
+    font-size: 18px;
+}
+
+.ui-grid-row:hover .ui-grid-cell {
+    background: lightblue;
+}
+.text-anchor {
+    text-decoration: underline;
+}
+.alert-success{
+    color: black;
+    background-color: white;
+    border-color: transparent;
+    padding: 0;
+    height: 100%;
+}
+.ui-grid-row-selected .ng-isolate-scope .ui-grid-cell{
+    background-color: rgba(0, 180, 218, 1) !important;
+}
+
+.campaign-status{
+    /*padding:15px;*/
+    background-color: transparent;
+    width: 100%;
+    border-left: 0;
+    border-right: 0;
 }

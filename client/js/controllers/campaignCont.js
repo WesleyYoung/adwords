@@ -13,14 +13,8 @@
         var cc = this;
         cc.$http = $http;
 
-        $http.get('/getcampaigns').then(function(results){
-            console.log(results.data);
-            cc.campaigns=results.data.models;
-            cc.campaignsById=results.data.byId;
-            console.log(cc.campaignsById);
-        });
+        cc.campaignGrid = campaignService.campaignGrid;
 
-        console.log("Trying....", cc.campaigns);
     }
 
     CampaignController.prototype.toggleOnStat=function(id){
@@ -33,11 +27,12 @@
             toStatus: toStatus
         }).then(function(response){
             console.log(response.data.message);
-            cc.getCampaigns();
+            cc.getCampaigns();//
         })
     };
 
     CampaignController.prototype.getCampaigns=function(){
+        console.log("Got here");
         var cc = this;
         var $http = cc.$http;
         $http.get('/getcampaigns').then(function(results){
