@@ -74,6 +74,7 @@ input[type=text], button {
     /*padding:15px;*/
     background-color: transparent;
     width: 100%;
-    border-left: 0;
-    border-right: 0;
+    height: 100%;
+    border:0;
+    z-index: 100 !important;
 }

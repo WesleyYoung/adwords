@@ -19,7 +19,8 @@
         "ui.grid.selection",
         "ui.grid.edit",
         "ui.grid.pagination",
-        "ui.grid.resizeColumns"
+        "ui.grid.resizeColumns",
+        "toaster"
     ])
 
         .config(["$stateProvider", "$urlRouterProvider",

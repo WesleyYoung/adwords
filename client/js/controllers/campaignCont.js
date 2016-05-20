@@ -12,24 +12,29 @@
     function CampaignController(campaignService, $http, $scope) {
         var cc = this;
         cc.$http = $http;
+        cc.toggleOnState = campaignService.changeCampaignStatus;
 
         cc.campaignGrid = campaignService.campaignGrid;
+        cc.campaigns = campaignService.campaigns;
+        cc.campaignsById = campaignService.campaignsById;
+        $scope.isWaiting = campaignService.isWaiting;
+
+        console.log(cc.campaignsById);
+
+        $scope.toggleOnState = cc.toggleOnState;
+
+        $scope.$watch(function(){
+            return campaignService.campaignGrid.data;
+        }, function(value){
+            cc.campaignGrid.data=value;
+        });
+        $scope.$watch(function(){
+            return campaignService.isWaiting;
+        }, function(value){
+            $scope.isWaiting=value;
+        })
 
     }
-
-    CampaignController.prototype.toggleOnStat=function(id){
-        var cc = this;
-        var $http = cc.$http;
-        var toStatus;
-        cc.campaignsById[id].status=="PAUSED"?toStatus="ENABLED":toStatus="PAUSED";
-        $http.post('/changecampaignstatus',{
-            id: id,
-            toStatus: toStatus
-        }).then(function(response){
-            console.log(response.data.message);
-            cc.getCampaigns();//
-        })
-    };
 
     CampaignController.prototype.getCampaigns=function(){
         console.log("Got here");
