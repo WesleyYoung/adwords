@@ -101,11 +101,11 @@
 
     </div>
     <!-- Main Content -->
-    <div class="container-fluid" style="overflow-y: visible; padding: 0; height: 100%">
-        <div class="side-body">
+    <div class="container-fluid custom-slide" style="overflow-y: visible; padding: 0; height: 100%">
+        <div class="side-body ">
 
             <!-- UI View -->
-            <div ui-view class="user-interface"></div>
+            <div ui-view class="user-interface custom-slide"></div>
             <toaster-container toaster-options="{'time-out': 3000}"></toaster-container>
         </div>
     </div>
@@ -122,6 +122,7 @@
 <script src="libs/js/ui-router.min.js"></script>
 <script src="libs/js/ui-grid.min.js"></script>
 <script src="libs/js/toaster.js"></script>
+<script src="libs/js/angular-animate.min.js"></script>
 
 <!-- Styling JavaScript  -->
 <script src="js/styling/styleScript.js"></script>
@@ -129,6 +130,9 @@
 <!-- Directives -->
 <script src="js/directives/campaign.js"></script>
 <script src="js/directives/ad-group.js"></script>
+
+<!-- Animations -->
+<script src="js/animations/slide.js"></script>
 
 <!-- Services -->
 <script src="js/services/planService.js"></script>

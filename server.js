@@ -226,29 +226,40 @@ app.post('/changeallcampaignstates', BlanketCampaignChange);
 app.post('/changecampaignstatus', changeCampaignStatus);
 
 io.on('connection', function(socket){
-   console.log("We did it!");
-
-    var campaignGrabber = setInterval(function(){
+    console.log("We did it!");
+    var autoGrabber = true;
+    function campaignGrabber() {
         console.log("Init Campaign Retrieve");
         var cModels, cById;
-        var reqError=false;
+        var reqError = false;
         var selector = new AdWords.Selector.model({
             fields: campaignService.selectable,
             ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
             paging: {startIndex: 0, numberResults: 100}
         });
-        campaignService.get(clientCustomerId,
+        campaignService.get(
+            clientCustomerId,
             selector,
-            function(err, results) {
-                if (err){
+            function (err, results) {
+                if (err) {
                     console.log(err);
-                    reqError=true;
+                    reqError = true;
+                    socket.broadcast.emit('error', JSON.stringify({message: "There was an error getting the campaigns from Google", error: err}))
+                } else{
+                    cModels = results.entries.models;
+                    cById = results.entries._byId;
+                    socket.broadcast.emit('campaignretrieve', JSON.stringify({models: cModels, byId: cById}));
+                    setTimeout(function(){
+                        if(autoGrabber){
+                            campaignGrabber();
+                        }
+                    }, 30000)
                 }
-                cModels=results.entries.models;
-                cById=results.entries._byId;
-                socket.broadcast.emit('campaignretrieve', JSON.stringify({models: cModels, byId: cById}));
             });
-    }, (60000*5));
+    }
+    if(autoGrabber){
+        //campaignGrabber();
+    }
 });
 
 

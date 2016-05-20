@@ -4,6 +4,8 @@
 (function(){
     'use strict';
 
+    //ui-sref="/campaignView/{{row.entity.id}}"
+
     angular.module('campaignService', [])
         .service('campaignService', CampaignService);
 
@@ -15,14 +17,15 @@
 
         var socket = io.connect('http://192.168.75.41:3343');
 
-        //socket.on('campaignretrieve', function(data){
-        //    console.log("Campaigns retrieved!");
-        //    cs.campaigns=data.models;
-        //    cs.campaignsById=data.byId;
-        //    cs.campaignGrid.data = data.models;
-        //});
+        socket.on('campaignretrieve', function(data){
+            console.log("Campaigns retrieved!");
+            cs.campaigns=data.models;
+            cs.campaignsById=data.byId;
+            cs.campaignGrid.data = data.models;
+        });
 
         cs.changeCampaignStatus=changeCampaignStatus;
+
         cs.isWaiting=false;
 
         cs.campaignGrid = {
@@ -34,7 +37,7 @@
                 {field: 'status',
                     maxWidth: 70,
                     cellTemplate: `
-                    <button class="campaign-status">
+                    <button class="campaign-cell">
                         <i ng-if="row.entity.status=='ENABLED'&&!grid.appScope.isWaiting" ng-click="grid.appScope.toggleOnState(row.entity.id)" class="fa fa-toggle-on fa-2x" style="color: green;"></i>
                         <i ng-if="row.entity.status=='PAUSED'&&!grid.appScope.isWaiting" ng-click="grid.appScope.toggleOnState(row.entity.id)" class="fa fa-toggle-off fa-2x" style="color: grey;"></i>
                         <i ng-if="grid.appScope.isWaiting" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
@@ -51,6 +54,11 @@
                     }
                 },
                 {field: "name",
+                    cellTemplate: `
+                    <span class="campaign-cell" style="margin-left: 10px; margin-top: 10px !important;">
+                        <a class="campaign-cell"  href="#/campaignView/{{row.entity.id}}" style="color: black">{{row.entity.name}}</a>
+                    </span>
+                    `,
                     cellTooltip: function(row, col) {
                     return "Tool tip!";
                     }

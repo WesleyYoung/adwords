@@ -7,6 +7,8 @@
     angular.module('marketManager', [
         "ui.router",
         "navController",
+        "ngAnimate",
+        "slide",
         "campaignDirective",
         "adGroupDirective",
         "planService",

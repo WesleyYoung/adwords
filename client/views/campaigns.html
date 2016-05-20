@@ -1,12 +1,16 @@
 <!--<h1>Campaigns</h1>-->
 <!--<campaign ng-repeat="campaign in cc.campaigns" campaign-info="campaign" ng-click="cc.toggleOnStat(campaign.id)"></campaign>-->
 <!--<button type="button" ng-click="cc.getCampaigns()">Get Campaigns</button>-->
-<div class="alert alert-success">
-
+<div ng-if="cc.campaignGrid.data!==undefined" class="alert alert-success slide">
     <div ui-grid="cc.campaignGrid" class="my-grid"
-          ui-grid-pagination ui-grid-resize-columns>
+         ui-grid-pagination ui-grid-resize-columns>
     </div>
+</div>
 
+<div ng-if="cc.campaignGrid.data==undefined" class="loading-screen">
+    <h2>Getting Campaigns From AdWords...</h2>
+    <br>
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
 </div>
 
 <!-- ui-grid-selection ui-grid-edit -->

@@ -7,9 +7,9 @@
     angular.module('campaignViewController', [])
         .controller('campaignViewController', campaignViewController);
 
-    campaignViewController.$inject = [];
+    campaignViewController.$inject = ["campaignService"];
 
-    function campaignViewController() {
+    function campaignViewController(campaignService) {
         var cvc=this;
 
     }

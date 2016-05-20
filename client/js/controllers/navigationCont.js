@@ -7,8 +7,8 @@
     angular.module('navController', [])
         .controller('navController', navController);
 
-    navController.$inject = ["$location", "planService"];
-    function navController($location, planService) {
+    navController.$inject = ["$location"];
+    function navController($location) {
         var nav = this;
         nav.isActive = isActive;
 
