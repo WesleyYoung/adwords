@@ -54,7 +54,7 @@ var reports = [
 
 var campaignService = new AdWords.CampaignService(adWordsCredentials);
 
-
+var adGroupService = new AdWords.AdGroupService(adWordsCredentials);
 
 
 
@@ -77,6 +77,27 @@ function returnCampaigns(req, res){
             cById=results.entries._byId;
             res.end(JSON.stringify({models: cModels, byId: cById}));
     });
+}
+
+function returnAdGroups(req, res){
+    var cModels, cById;
+    var reqError=false;
+    var selector = new AdWords.Selector.model({
+        fields: adGroupService.selectable,
+        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+        paging: {startIndex: 0, numberResults: 100}
+    });
+    adGroupService.get(clientCustomerId,
+        selector,
+        function(err, results) {
+            if (err){
+                console.log(err);
+                reqError=true;
+            }
+            cModels=results.entries;
+            //cById=results.entries._byId;
+            res.end(JSON.stringify(cModels));
+        });
 }
 
 function returnReports(req, res){
@@ -218,6 +239,8 @@ function changeCampaignStatus(req, res){
 }
 
 app.get('/getcampaigns', returnCampaigns);
+
+app.get('/getadgroups', returnAdGroups);
 
 app.get('/getreports', returnReports);
 

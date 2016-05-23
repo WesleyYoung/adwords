@@ -15,14 +15,14 @@
         var cs = this;
         cs.$http=$http;
 
-        var socket = io.connect('http://192.168.75.41:3343');
+        //var socket = io.connect('http://192.168.75.41:3343');
 
-        socket.on('campaignretrieve', function(data){
-            console.log("Campaigns retrieved!");
-            cs.campaigns=data.models;
-            cs.campaignsById=data.byId;
-            cs.campaignGrid.data = data.models;
-        });
+        //socket.on('campaignretrieve', function(data){
+        //    console.log("Campaigns retrieved!");
+        //    cs.campaigns=data.models;
+        //    cs.campaignsById=data.byId;
+        //    cs.campaignGrid.data = data.models;
+        //});
 
         cs.changeCampaignStatus=changeCampaignStatus;
 
@@ -63,6 +63,20 @@
                     return "Tool tip!";
                     }
                 }
+            ],
+            paginationPageSizes: [25, 50, 75],
+            paginationPageSize: 25
+        };
+
+        cs.adGroupGrid={
+            data: undefined,
+            enableFiltering: true,
+            enableFullRowSelection: true,
+            showColumnFooter: true,
+            columnDefs: [
+                {field: "status"},
+                {field: "name"},
+                {field: "campaignName"}
             ],
             paginationPageSizes: [25, 50, 75],
             paginationPageSize: 25

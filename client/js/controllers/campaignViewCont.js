@@ -7,10 +7,11 @@
     angular.module('campaignViewController', [])
         .controller('campaignViewController', campaignViewController);
 
-    campaignViewController.$inject = ["campaignService"];
+    campaignViewController.$inject = ["$http", "campaignService"];
 
-    function campaignViewController(campaignService) {
+    function campaignViewController($http, campaignService) {
         var cvc=this;
+
 
     }
 
