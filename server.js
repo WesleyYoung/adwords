@@ -95,8 +95,11 @@ function returnAdGroups(req, res){
                 reqError=true;
             }
             cModels=results.entries;
-            //cById=results.entries._byId;
-            res.end(JSON.stringify(cModels));
+            var byId = {};
+            for(var i=0;i<results.entries.models.length;i++){
+                byId[results.entries.models[i].id]=results.entries.models[i];
+            }
+            res.end(JSON.stringify({models: cModels, byId: byId}));
         });
 }
 
@@ -193,7 +196,7 @@ function changeCampaignStatus(req, res){
         paging: {startIndex: 0, numberResults: 100}
     });
     campaignService.get(
-        adWordsCredentials.ADWORDS_CLIENT_CUSTOMER_ID,
+        clientCustomerId,
         selector,
         function(err, results){
             if(err){
@@ -238,6 +241,66 @@ function changeCampaignStatus(req, res){
     )
 }
 
+function changeAdGroupStatus(req, res){
+    console.log("We Got Here");
+    var toStatus = req.body.toStatus;
+    var id = req.body.id;
+    var adGroup;
+    var selector = new AdWords.Selector.model({
+        fields: adGroupService.selectable,
+        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+        paging: {startIndex: 0, numberResults: 100}
+    });
+    adGroupService.get(
+        clientCustomerId,
+        selector,
+        function(err, results){
+            if(err){
+                console.log(err);
+                res.end(JSON.stringify({error: err}))
+            }
+            else{
+                for(var i=0;i<results.entries.models.length;i++){
+                    if(results.entries.models[i].id==id){
+                        adGroup=results.entries.models[i];
+                    }
+                }
+                async.series([
+                    function(cb){
+                        adGroup.set('status', toStatus);
+                        adGroupService.mutateSet(
+                            clientCustomerId,
+                            adGroup,
+                            function(err, response){
+                                var message;
+                                if(err){
+                                    console.log(err);
+                                    message = `There was an error changing Ad Group: ${adGroup.attributes.name} to ${toStatus}, please check the error variable for more information`;
+                                    res.end(JSON.stringify({error: err, message: message}))
+                                }else{
+                                    message = `Ad Group: ${adGroup.attributes.name}'s status has been changed to ${toStatus}`;
+                                    adGroupService.get(
+                                        clientCustomerId,
+                                        selector,
+                                        function(err, newSet){
+                                            if(err){
+                                                console.log(err);
+                                                res.end(JSON.stringify({error: err, message: message}))
+                                            }else{
+                                                res.end(JSON.stringify({error: err, message: message, newAdGroupSet: {models: newSet.entries.models, byId: newSet.entries._byId}}))
+                                            }
+                                        }
+                                    );
+                                }
+                            }
+                        )
+                    }
+                ])
+            }
+        }
+    )
+}
+
 app.get('/getcampaigns', returnCampaigns);
 
 app.get('/getadgroups', returnAdGroups);
@@ -247,6 +310,8 @@ app.get('/getreports', returnReports);
 app.post('/changeallcampaignstates', BlanketCampaignChange);
 
 app.post('/changecampaignstatus', changeCampaignStatus);
+
+app.post('/changeadgroupstatus', changeAdGroupStatus);
 
 io.on('connection', function(socket){
     console.log("We did it!");
@@ -284,7 +349,6 @@ io.on('connection', function(socket){
         //campaignGrabber();
     }
 });
-
 
 var port = 3343;
 server.listen(port, function() {

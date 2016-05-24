@@ -25,6 +25,7 @@
         //});
 
         cs.changeCampaignStatus=changeCampaignStatus;
+        cs.changeAdGroupStatus=changeAdGroupStatus;
 
         cs.isWaiting=false;
 
@@ -74,24 +75,45 @@
             enableFullRowSelection: true,
             showColumnFooter: true,
             columnDefs: [
-                {field: "status"},
-                {field: "name"},
-                {field: "campaignName"}
+                {
+                    field: "status",
+                    maxWidth: 70,
+                    cellTemplate: `
+                    <button class="campaign-cell">
+                        <i ng-if="row.entity.status=='ENABLED'&&!grid.appScope.isWaiting" ng-click="grid.appScope.toggleOnState(row.entity.id)" class="fa fa-toggle-on fa-2x" style="color: green;"></i>
+                        <i ng-if="row.entity.status=='PAUSED'&&!grid.appScope.isWaiting" ng-click="grid.appScope.toggleOnState(row.entity.id)" class="fa fa-toggle-off fa-2x" style="color: grey;"></i>
+                        <i ng-if="grid.appScope.isWaiting" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                    </button>
+                    `
+                },
+                {
+                    field: "name",
+                    width: 250
+                },
+                {
+                    field: "campaignName",
+                    name: "Campaign"
+                }
             ],
             paginationPageSizes: [25, 50, 75],
             paginationPageSize: 25
         };
 
-        getCampaigns().then(function(results){
-            cs.campaignGrid.data = results.models;
-            cs.campaigns=results.models;
-            cs.campaignsById=results.byId;
+        getAdWordsData().then(function(results){
+            cs.campaignGrid.data = results.campaigns.models;
+            cs.campaigns=results.campaigns.models;
+            cs.campaignsById=results.campaigns.byId;
+            cs.adGroupGrid.data = results.adGroups.models;
+            cs.adGroupsById = results.adGroups.byId;
+            console.log(results.adGroups);
         });
 
-        function getCampaigns(){
-            return $http.get('/getcampaigns').then(function(results){
-                console.log(results.data);
-                return results.data;
+        function getAdWordsData(){
+            return $http.get('/getcampaigns').then(function(campaignResults){
+                console.log(campaignResults.data);
+                return $http.get('getadgroups').then(function(adGroupResults){
+                    return {campaigns: campaignResults.data, adGroups: adGroupResults.data}
+                });
             });
         }
 
@@ -99,7 +121,14 @@
             console.log("Got here");
             cs.isWaiting=true;
             var toStatus;
+            var isWaiting = true;
             cs.campaignsById[id].status=="PAUSED"?toStatus="ENABLED":toStatus="PAUSED";
+            setTimeout(function(){
+                if(isWaiting){
+                    console.log("Response is taking a long time.");
+                    toaster.pop('warning', "Waiting for response...", "The request has taken more than 30 seconds, if it doesn't get resolved please go make the requested change within AdWords");
+                }
+            }, 30000);
             $http.post('/changecampaignstatus',{
                 id: id,
                 toStatus: toStatus
@@ -115,9 +144,42 @@
                     cs.campaigns=response.data.newCampaignSet.models;
                     cs.campaignsById=response.data.newCampaignSet.byId;
                     cs.isWaiting=false;
+                    isWaiting = false;
                     toaster.pop('success', "Success!", response.data.message)
                 }
             })
+        }
+
+        function changeAdGroupStatus(id){
+            console.log("Got here");
+            cs.isWaiting=true;
+            var toStatus;
+            var isWaiting = true;
+            cs.adGroupsById[id].status=="PAUSED"?toStatus="ENABLED":toStatus="PAUSED";
+            setTimeout(function(){
+                if(isWaiting){
+                    console.log("Response is taking a long time.");
+                    toaster.pop('warning', "Waiting for response...", "The request has taken more than 30 seconds, if it doesn't get resolved please go make the requested change within AdWords");
+                }
+            }, 30000);
+            $http.post('/changeadgroupstatus',{
+                id: id,
+                toStatus: toStatus
+            }).then(function(response){
+                if(response.data.error){
+                    console.log(response.data.error);
+                    cs.isWaiting=false;
+                    toaster.pop('error', "There was an error!", response.data.error)
+
+                }else{
+                    console.log(response.data.message);
+                    cs.adGroupGrid.data=response.data.newAdGroupSet.models;
+                    cs.adGroups=response.data.newAdGroupSet.models;
+                    cs.adGroupsById=response.data.newAdGroupSet.byId;
+                    cs.isWaiting=false;
+                    toaster.pop('success', "Success!", response.data.message)
+                }
+            });
         }
 
     }
