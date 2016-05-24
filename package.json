@@ -3,6 +3,17 @@
   "version": "1.0.0",
   "description": "API for Bask Marketing",
   "main": "server.js",
+  "dependencies": {
+    "express": "x.x.x",
+    "body-parser": "x.x.x",
+    "async": "x.x.x",
+    "http": "x.x.x",
+    "socket.io": "x.x.x",
+    "googleads-node-lib": "x.x.x",
+    "xml2js": "x.x.x",
+    "fs": "x.x.x",
+    "assert": "x.x.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
