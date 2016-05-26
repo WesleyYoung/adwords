@@ -111,7 +111,7 @@
         function getAdWordsData(){
             return $http.get('/getcampaigns').then(function(campaignResults){
                 console.log(campaignResults.data);
-                return $http.get('getadgroups').then(function(adGroupResults){
+                return $http.get('/getadgroups').then(function(adGroupResults){
                     return {campaigns: campaignResults.data, adGroups: adGroupResults.data}
                 });
             });

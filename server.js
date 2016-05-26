@@ -110,28 +110,30 @@ function returnReports(req, res){
         count++;
         reports[x].getReport({
             dateRangeType: 'CUSTOM_DATE',
-            dateMin: '19700101',
-            dateMax: '20380101',
+            dateMin: '20160501',
+            dateMax: '20160520',
             downloadFormat: 'XML',
             fieldNames: reports[x].defaultFieldNames,
             clientCustomerId: clientCustomerId
         }, function(error, response, body){
             if(error){
                 console.log(error);
+                res.end(JSON.stringify({error: error}))
+            }else{
+                parseString(body, function(err, result){
+                    if(err){
+                        console.log(err);
+                    }
+                    var n = "report-name";
+                    console.log(result.report[n][0].$.name);
+                    output[result.report[n][0].$.name.split(" ").join("_")]=result;
+                    if(count<reports.length){
+                        sendGet(count);
+                    }else{
+                        res.end(JSON.stringify(output));
+                    }
+                })
             }
-            parseString(body, function(err, result){
-                if(err){
-                    console.log(err);
-                }
-                var n = "report-name";
-                console.log(result.report[n][0].$.name);
-                output[result.report[n][0].$.name]=result;
-                if(count<reports.length){
-                    sendGet(count);
-                }else{
-                    res.end(JSON.stringify(output));
-                }
-            })
         });
     }
     sendGet(count);
