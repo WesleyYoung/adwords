@@ -7,9 +7,9 @@
     angular.module('campaignViewController', [])
         .controller('campaignViewController', campaignViewController);
 
-    campaignViewController.$inject = ["$http", "campaignService", "$scope", "$location"];
+    campaignViewController.$inject = ["$http", "adGroupService","campaignService", "$scope", "$location"];
 
-    function campaignViewController($http, campaignService, $scope, $location) {
+    function campaignViewController($http, adGroupService,campaignService, $scope, $location) {
         var cvc = this;
         var id = $location.path().split("/")[$location.path().split("/").length - 1];
 
@@ -20,23 +20,11 @@
         $scope.toggleOnState = campaignService.changeAdGroupStatus;
 
         $scope.$watch(function () {
-            return campaignService.adGroupGrid.data;
+            return campaignService.adGroupGrid.data.filter(function(x){
+                return x;
+            });
         }, function (value) {
-            if(id=="all"){
-                cvc.adGroupGrid.data = value
-            }else{
-                if(value!==undefined){
-                    var output = [];
-                    for(var i=0;i<value.length;i++){
-                        if(value[i].campaignId==id){
-                            output.push(value[i])
-                        }
-                    }
-                    cvc.adGroupGrid.data = output;
-                }else{
-                    cvc.adGroupGrid.data = value
-                }
-            }
+            cvc.adGroupGrid.data = value
         });
 
         $scope.$watch(function () {

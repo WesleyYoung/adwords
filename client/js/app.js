@@ -13,6 +13,7 @@
         "adGroupDirective",
         "planService",
         "campaignService",
+        "adGroupService",
         "campaignController",
         "campaignViewController",
         "ruleController",
