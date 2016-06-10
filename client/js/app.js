@@ -11,6 +11,7 @@
         "slide",
         "campaignDirective",
         "adGroupDirective",
+        "loadingScreenDirective",
         "planService",
         "campaignService",
         "adGroupService",

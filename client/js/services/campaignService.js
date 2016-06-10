@@ -25,7 +25,6 @@
         //});
 
         cs.changeCampaignStatus=changeCampaignStatus;
-        cs.changeAdGroupStatus=changeAdGroupStatus;
 
         cs.isWaiting=false;
 

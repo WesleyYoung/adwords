@@ -9,35 +9,39 @@
 
     campaignViewController.$inject = ["$http", "adGroupService","campaignService", "$scope", "$location"];
 
-    function campaignViewController($http, adGroupService,campaignService, $scope, $location) {
+    function campaignViewController($http, adGroupService, campaignService, $scope, $location) {
         var cvc = this;
         var id = $location.path().split("/")[$location.path().split("/").length - 1];
 
-        cvc.adGroupGrid = campaignService.adGroupGrid;
+        adGroupService.onload(id);
 
-        cvc.campaignsById = campaignService.campaignsById;
-        $scope.isWaiting = campaignService.isWaiting;
-        $scope.toggleOnState = campaignService.changeAdGroupStatus;
+        cvc.adGroupGrid = adGroupService.adGroupGrid;
+
+        //If the grid data isn't undefined, it means we've already used the service and older data is still in the service.
+        //This will prevent the older data from showing up before the newer data is loaded
+        if(cvc.adGroupGrid.data!==undefined){cvc.adGroupGrid.data=undefined}
+
+        $scope.isWaiting = adGroupService.isWaiting;
+        $scope.toggleOnState = adGroupService.changeAdGroupStatus;
+
+        if(id!=='all'){
+            adGroupService.narrowAdGroups();
+        }else{
+            adGroupService.allAdGroups();
+        }
 
         $scope.$watch(function () {
-            return campaignService.adGroupGrid.data.filter(function(x){
-                return x;
-            });
+            return adGroupService.adGroupGrid.data;
         }, function (value) {
             cvc.adGroupGrid.data = value
         });
 
         $scope.$watch(function () {
-            return campaignService.isWaiting;
+            return adGroupService.isWaiting;
         }, function (value) {
             $scope.isWaiting = value;
         });
 
-        $scope.$watch(function () {
-            return campaignService.campaignsById;
-        }, function (value) {
-            cvc.campaignsById = value;
-        });
     }
 }());
 

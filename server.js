@@ -72,10 +72,12 @@ function returnCampaigns(req, res){
             if (err){
                 console.log(err);
                 reqError=true;
+                res.end(JSON.stringify({error: err}))
+            }else{
+                cModels=results.entries.models;
+                cById=results.entries._byId;
+                res.end(JSON.stringify({models: cModels, byId: cById}));
             }
-            cModels=results.entries.models;
-            cById=results.entries._byId;
-            res.end(JSON.stringify({models: cModels, byId: cById}));
     });
 }
 
@@ -93,13 +95,15 @@ function returnAdGroups(req, res){
             if (err){
                 console.log(err);
                 reqError=true;
+                res.end(JSON.stringify({error: err}))
+            }else{
+                cModels=results.entries;
+                var byId = {};
+                for(var i=0;i<results.entries.models.length;i++){
+                    byId[results.entries.models[i].id]=results.entries.models[i];
+                }
+                res.end(JSON.stringify({models: cModels, byId: byId}));
             }
-            cModels=results.entries;
-            var byId = {};
-            for(var i=0;i<results.entries.models.length;i++){
-                byId[results.entries.models[i].id]=results.entries.models[i];
-            }
-            res.end(JSON.stringify({models: cModels, byId: byId}));
         });
 }
 

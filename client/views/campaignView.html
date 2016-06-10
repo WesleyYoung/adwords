@@ -8,8 +8,4 @@
     </div>
 </div>
 
-<div ng-if="cvc.adGroupGrid.data==undefined" class="loading-screen">
-    <h2>Getting AdGroups From AdWords...</h2>
-    <br>
-    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
-</div>
+<loading-screen ng-if="cvc.adGroupGrid.data==undefined" info="{title: 'Getting AdGroups From AdWords...'}"></loading-screen>

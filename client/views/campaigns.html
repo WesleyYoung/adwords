@@ -7,10 +7,6 @@
     </div>
 </div>
 
-<div ng-if="cc.campaignGrid.data==undefined" class="loading-screen">
-    <h2>Getting Campaigns From AdWords...</h2>
-    <br>
-    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
-</div>
+<loading-screen ng-if="cc.campaignGrid.data==undefined" info="{title: 'Getting Campaigns From AdWords...'}"></loading-screen>
 
 <!-- ui-grid-selection ui-grid-edit -->
