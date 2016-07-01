@@ -22,8 +22,12 @@ var AdWords = require('googleads-node-lib');
 
 var parseString=require('xml2js').parseString;
 
+var Converter = require("csvtojson").Converter;
+
+var converter = new Converter({});
 
 const fs = require('fs');
+
 
 var assert = require('assert');
 
@@ -356,8 +360,52 @@ io.on('connection', function(socket){
     }
 });
 
+app.get('/leadData', function(req, res){
+    fs.readFile('leadData.json', (err,data)=>{
+        res.end(data);
+    });
+
+});
+
 var port = 3343;
 server.listen(port, function() {
     console.log(`App listening on port ${port}...`);
 });
 
+function adjustLeadData(){
+    converter.fromFile("campaignStats.csv", (err, result)=>{git
+        if(err)throw err;
+        //console.log(result);
+        var results = result,
+            leadsByDate = [],
+            leadsBy15Monthly = {};
+        for(var i=0;i<results.length;i++){
+            var goodDate = results[i].DATE;
+            if(leadsByDate[leadsByDate.length-1]==undefined||leadsByDate[leadsByDate.length-1].date!==goodDate){
+                leadsByDate.push({date: goodDate, stats: [{leads: results[i]['LIST RECORDS'], quarter: results[i]['QUARTER HOUR']}]})
+            }else{
+                leadsByDate[leadsByDate.length-1].stats.push({leads: results[i]['LIST RECORDS'], quarter: results[i]['QUARTER HOUR']})
+            }
+        }
+        for(var i=0;i<leadsByDate.length;i++){
+            var count = 0;
+            for(var j=0;j<leadsByDate[i].stats.length;j++){
+                count+=parseInt(leadsByDate[i].stats[j].leads);
+                if(leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]==undefined){
+                    leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]=leadsByDate[i].stats[j].leads;
+                }else{
+                    leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]= parseInt(leadsByDate[i].stats[j].leads + leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]);
+                }
+            }
+            leadsByDate[i].totalLeads=count;
+        }
+
+        fs.writeFile('leadData.json', JSON.stringify({byDate: leadsByDate, by15Monthly: leadsBy15Monthly}), (err)=>{
+           if(err)throw err;
+
+        });
+
+    });
+}
+
+adjustLeadData();

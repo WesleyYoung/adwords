@@ -1,30 +1,46 @@
 /**
  * Created by Wesley on 4/20/2016.
  */
-(function(){
+(function () {
     'use strict';
 
     angular.module('marketManager', [
+
+        //Libraries
         "ui.router",
-        "navController",
         "ngAnimate",
-        "slide",
-        "campaignDirective",
-        "adGroupDirective",
-        "loadingScreenDirective",
-        "planService",
-        "campaignService",
-        "adGroupService",
-        "campaignController",
-        "campaignViewController",
-        "ruleController",
-        "recordController",
+        //"ngAria",
+        //"ngMessages",
+        //"ngMaterial",
+        "toaster",
+        "chart.js",
+
+        //ui-grid
         "ui.grid",
         "ui.grid.selection",
         "ui.grid.edit",
         "ui.grid.pagination",
         "ui.grid.resizeColumns",
-        "toaster"
+
+        //Animations
+        "slide",
+
+        //Directives
+        "campaignDirective",
+        "adGroupDirective",
+        "loadingScreenDirective",
+
+        //Services
+        "planService",
+        "campaignService",
+        "adGroupService",
+
+        //Controllers
+        "navController",
+        "campaignController",
+        "campaignViewController",
+        "ruleController",
+        "recordController"
     ])
 
         .config(["$stateProvider", "$urlRouterProvider",
