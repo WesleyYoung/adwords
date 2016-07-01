@@ -7,11 +7,12 @@
     angular.module('marketManager', [
 
         //Libraries
-        "ui.router",
-        "ngAnimate",
-        //"ngAria",
-        //"ngMessages",
-        //"ngMaterial",
+        'ui.router',
+        'ngAnimate',
+        //'ngMaterial',
+        'ngAria',
+        'ngMessages',
+        'ngRoute',
         "toaster",
         "chart.js",
 

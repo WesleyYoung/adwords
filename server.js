@@ -324,7 +324,6 @@ app.post('/changecampaignstatus', changeCampaignStatus);
 app.post('/changeadgroupstatus', changeAdGroupStatus);
 
 io.on('connection', function(socket){
-    console.log("We did it!");
     var autoGrabber = true;
     function campaignGrabber() {
         console.log("Init Campaign Retrieve");
@@ -373,7 +372,7 @@ server.listen(port, function() {
 });
 
 function adjustLeadData(){
-    converter.fromFile("campaignStats.csv", (err, result)=>{git
+    converter.fromFile("campaignStats.csv", (err, result)=>{
         if(err)throw err;
         //console.log(result);
         var results = result,
