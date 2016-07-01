@@ -381,19 +381,19 @@ function adjustLeadData(){
         for(var i=0;i<results.length;i++){
             var goodDate = results[i].DATE;
             if(leadsByDate[leadsByDate.length-1]==undefined||leadsByDate[leadsByDate.length-1].date!==goodDate){
-                leadsByDate.push({date: goodDate, stats: [{leads: results[i]['LIST RECORDS'], quarter: results[i]['QUARTER HOUR']}]})
+                leadsByDate.push({date: goodDate, stats: [{leads: results[i]['LIST RECORDS'], time: results[i]['QUARTER HOUR']}]})
             }else{
-                leadsByDate[leadsByDate.length-1].stats.push({leads: results[i]['LIST RECORDS'], quarter: results[i]['QUARTER HOUR']})
+                leadsByDate[leadsByDate.length-1].stats.push({leads: results[i]['LIST RECORDS'], time: results[i]['QUARTER HOUR']})
             }
         }
         for(var i=0;i<leadsByDate.length;i++){
             var count = 0;
             for(var j=0;j<leadsByDate[i].stats.length;j++){
                 count+=parseInt(leadsByDate[i].stats[j].leads);
-                if(leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]==undefined){
-                    leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]=leadsByDate[i].stats[j].leads;
+                if(leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]==undefined){
+                    leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]=leadsByDate[i].stats[j].leads;
                 }else{
-                    leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]= parseInt(leadsByDate[i].stats[j].leads + leadsBy15Monthly[leadsByDate[i].stats[j].quarter.replace(":", ".")]);
+                    leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]= parseInt(leadsByDate[i].stats[j].leads + leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]);
                 }
             }
             leadsByDate[i].totalLeads=count;
