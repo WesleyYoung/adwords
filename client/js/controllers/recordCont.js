@@ -13,9 +13,10 @@
         var rc = this;
 
         rc.getSpecificDay=getSpecificDay;
+        rc.getSpecificRange=getSpecificRange;
         rc.convertDate=convertDate;
 
-        rc.searchDay=new Date("2016", "5", "2");
+        rc.searchDay=new Date("2016", "5", "15");
         rc.specificInterval = "quarterly";
 
         rc.firstGraphLabels = [];
@@ -23,10 +24,14 @@
 
         rc.testFunc=function(){
             console.log("Hello!")
-        }
+        };
 
+        rc.searchRangeStart=new Date("2016","5","15");
+        rc.searchRangeEnd=new Date("2016","5","20");
         rc.secondGraphLabels = [];
         rc.secondGraphData = [];
+        rc.secondGraphTotals=0;
+        rc.rangeInterval = "quarterly";
 
         rc.thirdGraphData = [];
         rc.thirdGraphLabels = [];
@@ -34,6 +39,7 @@
 
         $http.get('/leadData').then(function(results){
             console.log(results);
+            var totals=0;
             var byDate = results.data.byDate,
                 by15Monthly = results.data.by15Monthly;
             for(var i=0;i<byDate.length;i++){
@@ -41,10 +47,12 @@
                 rc.firstGraphData.push(byDate[i].totalLeads);
             }
             for(var time in by15Monthly){
+                totals += parseInt(by15Monthly[time])
                 rc.secondGraphLabels.push(time.replace(".", ":"));
                 rc.secondGraphData.push(by15Monthly[time]);
             }
-        })
+            rc.secondGraphTotals=totals;
+        });
 
         function getSpecificDay(day, interval){
             rc.thirdGraphData = [];
@@ -136,7 +144,43 @@
             return stats;
         }
 
+        function getSpecificRange(startDay, endDay, interval){
+            var start = new Date(startDay)/1000,
+                end = new Date(endDay)/1000,
+                outputData={},
+                total=0;
+            rc.secondGraphData = [];
+            rc.secondGraphLabels = [];
+            $http.get('leadData').then(function(results){
+                var data = results.data.byDate;
+                for(var i=0;i<data.length;i++){
+                    var epochStart = new Date(data[i].date)/1000;
+                    if(epochStart>=start&&epochStart<=end){
+                        //console.log(dataDay);
+                        var stats = interval=="quarterly"?data[i].stats:interval=="hourly"?convertToHourly(data[i].stats):convertToHalfHour(data[i].stats);
+                        stats = fixTime(stats, interval);
+                        for(var j=0;j<stats.length;j++){
+                            if(outputData[stats[j].time.replace(":", ".")]==undefined){
+                                outputData[stats[j].time.replace(":", ".")]=stats[j].leads;
+                            }else{
+                                outputData[stats[j].time.replace(":", ".")]=(parseInt(outputData[stats[j].time.replace(":", ".")]) + parseInt(stats[j].leads)).toString()
+                            }
+
+                        }
+
+                    }
+                }
+                for(var d in outputData){
+                    rc.secondGraphData.push(outputData[d]);
+                    rc.secondGraphLabels.push(d)
+                    total+=parseInt(outputData[d]);
+                }
+                rc.secondGraphTotals=total;
+            });
+        }
+
         getSpecificDay(convertDate(rc.searchDay), rc.specificInterval);
+        rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly');
     }
 
 }());

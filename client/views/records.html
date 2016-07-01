@@ -1,22 +1,132 @@
-<md-content>
-        <div class="" style="max-width: 1200px; width: 100%">
-                <h1>Leads per day (last 30 days)</h1>
+<!--
+<md-content style="height: 100%; background-color: rgba(232, 232, 231, 0.26)">
+        <div class="" style="max-width: 1000px; width: 100%;">
+                &lt;!&ndash;<h1>Leads per day (last 30 days)</h1>
                 <canvas id="bar" class="chart chart-bar" chart-data="rc.firstGraphData" chart-labels="rc.firstGraphLabels"></canvas>
                 <br>
                 <h1>Leads per quarter (last 30 days)</h1>
                 <canvas id="bar2" class="chart chart-bar" chart-data="rc.secondGraphData" chart-labels="rc.secondGraphLabels"></canvas>
-                <br>
-                <h1>Leads per quarter (specific day)</h1>
-                <h3>Total leads {{rc.thirdGraphTotals}}</h3>
-                <md-datepicker flex md-open-on-focus ng-model="rc.searchDay" md-placeholder="Please choose a date"></md-datepicker>
-                <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
-                <br>
-                <br>
-                <md-radio-group ng-model="rc.specificInterval">
-                        <md-radio-button value="quarterly" class="md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'quarterly')">Quarterly</md-radio-button>
-                        <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'halfhour')">1/2 Hour</md-radio-button>
-                        <md-radio-button value="hourly" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'hourly')">Hourly</md-radio-button>
-                </md-radio-group>
+                <br>&ndash;&gt;
+                <md-toolbar class="md-primary">
+                        <h2 class="md-toolbar-tools">
+                                <p>Individual Days</p>
+                        </h2>
+                </md-toolbar>
+                <div layout="row">
+                        <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchDay" md-placeholder="Please choose a date"></md-datepicker>
+                        <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
+                </div>
+
                 <canvas id="bar3" class="chart chart-bar" chart-data="rc.thirdGraphData" chart-labels="rc.thirdGraphLabels"></canvas>
+                <md-toolbar class="md-primary">
+                        <h2 class="md-toolbar-tools">
+                                <span>Total leads {{rc.thirdGraphTotals}}</span>
+
+                                <span flex></span>
+                                <md-radio-group layout="row" ng-model="rc.specificInterval">
+                                        <md-radio-button value="quarterly" class="md-accent" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'quarterly')">Quarterly</md-radio-button>
+                                        <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'halfhour')">1/2 Hour</md-radio-button>
+                                        <md-radio-button value="hourly" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'hourly')">Hourly</md-radio-button>
+                                </md-radio-group>
+                        </h2>
+                </md-toolbar>
+                <hr>
+                <md-toolbar class="md-primary">
+                        <h2 class="md-toolbar-tools">
+                                <p>Range</p>
+                        </h2>
+                </md-toolbar>
+                <div layout="row">
+                        <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchCRStart" md-placeholder="Please choose a date"></md-datepicker>
+                        <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchDay2" md-placeholder="Please choose a date"></md-datepicker>
+                        <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
+                </div>
+
+                <canvas id="bar2" class="chart chart-bar" chart-data="rc.secondGraphData" chart-labels="rc.secondGraphLabels"></canvas>
+                <md-toolbar class="md-primary">
+                        <h2 class="md-toolbar-tools">
+                                <span>Total leads {{rc.secondGraphTotals}}</span>
+
+                                <span flex></span>
+                                <md-radio-group layout="row" ng-model="rc.specificInterval">
+                                        <md-radio-button value="quarterly" class="md-accent" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'quarterly')">Quarterly</md-radio-button>
+                                        <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'halfhour')">1/2 Hour</md-radio-button>
+                                        <md-radio-button value="hourly" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'hourly')">Hourly</md-radio-button>
+                                </md-radio-group>
+                        </h2>
+                </md-toolbar>
+
         </div>
 </md-content>
+
+
+-->
+<div ng-cloak style="max-width: 1200px; width: 100%;">
+        <md-content>
+                <md-tabs md-dynamic-height md-border-bottom>
+                        <md-tab label="Singular Day">
+                                <md-content class="">
+                                        <md-toolbar class="md-primary">
+                                                <h2 class="md-toolbar-tools">
+                                                        <p>Individual Days</p>
+                                                </h2>
+                                        </md-toolbar>
+                                        <div layout="row">
+                                                <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchDay" md-placeholder="Please choose a date"></md-datepicker>
+                                                <span flex></span>
+                                                <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
+                                        </div>
+
+                                        <canvas id="bar3" class="chart chart-bar" chart-data="rc.thirdGraphData" chart-labels="rc.thirdGraphLabels"></canvas>
+                                        <md-toolbar class="md-primary">
+                                                <h2 class="md-toolbar-tools">
+                                                        <span>Total leads {{rc.thirdGraphTotals}}</span>
+
+                                                        <span flex></span>
+                                                        <md-radio-group layout="row" ng-model="rc.specificInterval">
+                                                                <md-radio-button value="quarterly" class="md-accent" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'quarterly')">Quarterly</md-radio-button>
+                                                                <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'halfhour')">1/2 Hour</md-radio-button>
+                                                                <md-radio-button value="hourly" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'hourly')">Hourly</md-radio-button>
+                                                        </md-radio-group>
+                                                </h2>
+                                        </md-toolbar>
+                                </md-content>
+                        </md-tab>
+                        <md-tab label="Date Range">
+                                <md-content class="">
+                                        <md-toolbar class="md-primary">
+                                                <h2 class="md-toolbar-tools">
+                                                        <p>Range</p>
+                                                </h2>
+                                        </md-toolbar>
+                                        <div layout="row">
+                                                <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchRangeStart" md-placeholder="Start"></md-datepicker>
+                                                <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchRangeEnd" md-placeholder="End"></md-datepicker>
+                                                <span flex></span>
+                                                <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), rc.specificInterval)">Submit</md-button>
+                                        </div>
+
+                                        <canvas id="bar2" class="chart chart-bar" chart-data="rc.secondGraphData" chart-labels="rc.secondGraphLabels"></canvas>
+                                        <md-toolbar class="md-primary">
+                                                <h2 class="md-toolbar-tools">
+                                                        <span>Total leads {{rc.secondGraphTotals}}</span>
+
+                                                        <span flex></span>
+                                                        <md-radio-group layout="row" ng-model="rc.rangeInterval">
+                                                                <md-radio-button value="quarterly" class="md-accent" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly')">Quarterly</md-radio-button>
+                                                                <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), '1/2 Hour')">1/2 Hour</md-radio-button>
+                                                                <md-radio-button value="hourly" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'hourly')">Hourly</md-radio-button>
+                                                        </md-radio-group>
+                                                </h2>
+                                        </md-toolbar>
+                                </md-content>
+                        </md-tab>
+                        <md-tab label="three">
+                                <md-content class="md-padding">
+                                        <h1 class="md-display-2">Tab Three</h1>
+                                        <p>Integer turpis erat, porttitor vitae mi faucibus, laoreet interdum tellus. Curabitur posuere molestie dictum. Morbi eget congue risus, quis rhoncus quam. Suspendisse vitae hendrerit erat, at posuere mi. Cras eu fermentum nunc. Sed id ante eu orci commodo volutpat non ac est. Praesent ligula diam, congue eu enim scelerisque, finibus commodo lectus.</p>
+                                </md-content>
+                        </md-tab>
+                </md-tabs>
+        </md-content>
+</div>
