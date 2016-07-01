@@ -1,14 +1,22 @@
-<div class="" style="max-width: 1200px; width: 100%">
-        <h1>Leads per day (last 30 days)</h1>
-        <canvas id="bar" class="chart chart-bar" chart-data="rc.firstGraphData" chart-labels="rc.firstGraphLabels"></canvas>
-<br>
-        <h1>Leads per quarter (last 30 days)</h1>
-        <canvas id="bar2" class="chart chart-bar" chart-data="rc.secondGraphData" chart-labels="rc.secondGraphLabels"></canvas>
-<br>
-        <h1>Leads per quarter (last 30 days)</h1>
-        <label>
-                <input type="text" class="form-control" ng-model="rc.thirdGraphSearchTxt"/>
-        </label>
-        <button class="btn btn-primary" ng-click="rc.getSpecificDay(rc.thirdGraphSearchTxt)">Submit</button>
-        <canvas id="bar3" class="chart chart-bar" chart-data="rc.thirdGraphData" chart-labels="rc.thirdGraphLabels"></canvas>
-</div>
+<md-content>
+        <div class="" style="max-width: 1200px; width: 100%">
+                <h1>Leads per day (last 30 days)</h1>
+                <canvas id="bar" class="chart chart-bar" chart-data="rc.firstGraphData" chart-labels="rc.firstGraphLabels"></canvas>
+                <br>
+                <h1>Leads per quarter (last 30 days)</h1>
+                <canvas id="bar2" class="chart chart-bar" chart-data="rc.secondGraphData" chart-labels="rc.secondGraphLabels"></canvas>
+                <br>
+                <h1>Leads per quarter (specific day)</h1>
+                <h3>Total leads {{rc.thirdGraphTotals}}</h3>
+                <md-datepicker flex md-open-on-focus ng-model="rc.searchDay" md-placeholder="Please choose a date"></md-datepicker>
+                <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
+                <br>
+                <br>
+                <md-radio-group ng-model="rc.specificInterval">
+                        <md-radio-button value="quarterly" class="md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'quarterly')">Quarterly</md-radio-button>
+                        <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'halfhour')">1/2 Hour</md-radio-button>
+                        <md-radio-button value="hourly" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), 'hourly')">Hourly</md-radio-button>
+                </md-radio-group>
+                <canvas id="bar3" class="chart chart-bar" chart-data="rc.thirdGraphData" chart-labels="rc.thirdGraphLabels"></canvas>
+        </div>
+</md-content>
