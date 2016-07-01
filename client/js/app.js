@@ -9,14 +9,12 @@
         //Libraries
         'ui.router',
         'ngAnimate',
-        //'ngMaterial',
+        'ngMaterial',
         'ngAria',
         'ngMessages',
         'ngRoute',
         "toaster",
         "chart.js",
-
-        //ui-grid
         "ui.grid",
         "ui.grid.selection",
         "ui.grid.edit",

@@ -13,16 +13,23 @@
         var rc = this;
 
         rc.getSpecificDay=getSpecificDay;
+        rc.convertDate=convertDate;
+
+        rc.searchDay=new Date("2016", "5", "2");
 
         rc.firstGraphLabels = [];
         rc.firstGraphData = [];
+
+        rc.testFunc=function(){
+            console.log("Hello!")
+        }
 
         rc.secondGraphLabels = [];
         rc.secondGraphData = [];
 
         rc.thirdGraphData = [];
         rc.thirdGraphLabels = [];
-
+        rc.thirdGraphTotals = 0;
 
         $http.get('/leadData').then(function(results){
             console.log(results);
@@ -41,21 +48,32 @@
         function getSpecificDay(day){
             rc.thirdGraphData = [];
             rc.thirdGraphLabels = [];
+            var found=false;
             $http.get('leadData').then(function(results){
                 var data = results.data.byDate;
                 for(var i=0;i<data.length;i++){
                     if(data[i].date==day){
+                        found=true;
                         for(var j=0;j<data[i].stats.length;j++){
                             rc.thirdGraphData.push(data[i].stats[j].leads);
                             rc.thirdGraphLabels.push(data[i].stats[j].quarter)
                         }
+                        rc.thirdGraphTotals=data[i].totalLeads;
                         i=data.length;
                     }
                 }
-            })
+            });
         }
 
+        function convertDate(d){
+            var yr=d.getFullYear(),
+                mn=d.getMonth().length>1?(parseInt(d.getMonth())+1).toString():"0"+(parseInt(d.getMonth())+1).toString(),
+                day=parseInt(d.getDate())>9?d.getDate():"0"+d.getDate();
+            console.log( yr+"/"+mn+"/"+day);
+            return yr+"/"+mn+"/"+day;
+        }
 
+        getSpecificDay(convertDate(rc.searchDay));
     }
 
 }());
