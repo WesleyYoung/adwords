@@ -29,6 +29,12 @@
         "adGroupDirective",
         "loadingScreenDirective",
 
+        //Filters
+        "long-date-filter",
+        
+        //Factories
+        "leadFactory",
+
         //Services
         "planService",
         "campaignService",
@@ -42,8 +48,10 @@
         "recordController"
     ])
 
-        .config(["$stateProvider", "$urlRouterProvider",
-            function ($stateProvider, $urlRouterProvider) {
+        .config(["$stateProvider", "$urlRouterProvider", "ChartJsProvider",
+            function ($stateProvider, $urlRouterProvider, ChartJsProvider) {
+
+                ChartJsProvider.setOptions({ colors : [ '#008AFF', '#008AFF', '#008AFF',  '#008AFF', '#008AFF', '#008AFF', '#008AFF'] });
 
                 // App States (pages)
                 $stateProvider

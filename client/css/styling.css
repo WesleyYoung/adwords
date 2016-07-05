@@ -89,13 +89,17 @@ input[type=text], button {
 }
 
 .custom-slide.ng-enter {
-    transition:0.5s linear all !important;
-    transform:translateY(200px) !important;
+    transition:0.3s linear all !important;
+    transform:translateY(20px) !important;
+    opacity: 0;
 }
 .custom-slide.ng-enter.ng-enter-active {
     transform:translateY(0) !important;
+    opacity: 1;
 }
 
 md-datepicker{
     max-width: 200px !important;
+    margin: 5px
 }
+

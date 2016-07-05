@@ -398,8 +398,10 @@ function adjustLeadData(){
             }
             leadsByDate[i].totalLeads=count;
         }
+        var minDate=new Date(leadsByDate[0].date.split("/")[0], parseInt(leadsByDate[0].date.split("/")[1])-1, leadsByDate[0].date.split("/")[2]),
+            maxDate=new Date(leadsByDate[leadsByDate.length-1].date.split("/")[0], parseInt(leadsByDate[leadsByDate.length-1].date.split("/")[1])-1, leadsByDate[leadsByDate.length-1].date.split("/")[2])
 
-        fs.writeFile('leadData.json', JSON.stringify({byDate: leadsByDate, by15Monthly: leadsBy15Monthly}), (err)=>{
+        fs.writeFile('leadData.json', JSON.stringify({byDate: leadsByDate, by15Monthly: leadsBy15Monthly, metaData: {minDate: minDate, maxDate: maxDate}}), (err)=>{
            if(err)throw err;
 
         });

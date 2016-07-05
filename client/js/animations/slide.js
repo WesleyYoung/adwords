@@ -10,8 +10,8 @@ angular.module('slide', [])
                     event: 'enter',
                     structural: true,
                     addClass: 'maroon-setting',
-                    from: { height:-500 },
-                    to: { height: 200 }
+                    from: { height:-300, opacity: 0 },
+                    to: { height: 200, opacity: 1 }
                 })
             }
         }

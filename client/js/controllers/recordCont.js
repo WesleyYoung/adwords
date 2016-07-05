@@ -7,24 +7,28 @@
     angular.module('recordController', [])
         .controller('recordController', recordController);
 
-    recordController.$inject = ["$http", "$scope"];
+    recordController.$inject = ["$http", "$scope", "leadFactory"];
 
-    function recordController($http, $scope) {
+    function recordController($http, $scope, leadFactory) {
         var rc = this;
 
-        rc.getSpecificDay=getSpecificDay;
-        rc.getSpecificRange=getSpecificRange;
-        rc.convertDate=convertDate;
-
-        rc.searchDay=new Date("2016", "5", "15");
-        rc.specificInterval = "quarterly";
+        rc.convertDate=leadFactory.convertDate;
 
         rc.firstGraphLabels = [];
-        rc.firstGraphData = [];
+        rc.firstGraphData = [
+            [],
+            []
+        ];
 
-        rc.testFunc=function(){
-            console.log("Hello!")
-        };
+        console.log(leadFactory.metaData());
+            
+        rc.firstGraphSeries=["1st Range", "2nd Range"];
+        rc.compareRangesFirstDate = new Date("2016","5","1");
+        rc.compareRangesFirstDate2=new Date();
+        rc.compareRangesSecondDate = new Date("2016","5","15");
+        rc.compareRangesSecondDate2=new Date();
+        rc.rangeCompareLength="week";
+        rc.compareInterval="halfhour";
 
         rc.searchRangeStart=new Date("2016","5","15");
         rc.searchRangeEnd=new Date("2016","5","20");
@@ -36,151 +40,81 @@
         rc.thirdGraphData = [];
         rc.thirdGraphLabels = [];
         rc.thirdGraphTotals = 0;
+        rc.searchDay=new Date("2016", "5", "15");
+        rc.specificInterval = "quarterly";
+        
+        rc.singleScroll=function(dir){
+            var mod=dir=="next"?1:-1;
+            rc.searchDay=new Date(rc.searchDay.getFullYear(), rc.searchDay.getMonth(), parseInt(rc.searchDay.getDate())+mod)
+            rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)
+        };
 
-        $http.get('/leadData').then(function(results){
-            console.log(results);
-            var totals=0;
-            var byDate = results.data.byDate,
-                by15Monthly = results.data.by15Monthly;
-            for(var i=0;i<byDate.length;i++){
-                rc.firstGraphLabels.push(byDate[i].date);
-                rc.firstGraphData.push(byDate[i].totalLeads);
-            }
-            for(var time in by15Monthly){
-                totals += parseInt(by15Monthly[time])
-                rc.secondGraphLabels.push(time.replace(".", ":"));
-                rc.secondGraphData.push(by15Monthly[time]);
-            }
-            rc.secondGraphTotals=totals;
-        });
-
-        function getSpecificDay(day, interval){
-            rc.thirdGraphData = [];
-            rc.thirdGraphLabels = [];
-            var found=false;
-            $http.get('leadData').then(function(results){
-                var data = results.data.byDate;
-                for(var i=0;i<data.length;i++){
-                    if(data[i].date==day){
-                        found=true;
-                        var stats = interval=="quarterly"?data[i].stats:interval=="hourly"?convertToHourly(data[i].stats):convertToHalfHour(data[i].stats);
-                        stats = fixTime(stats, interval);
-                        for(var j=0;j<stats.length;j++){
-                            rc.thirdGraphData.push(stats[j].leads);
-                            rc.thirdGraphLabels.push(stats[j].time)
-                        }
-                        rc.thirdGraphTotals=data[i].totalLeads;
-                        i=data.length;
-                    }
-                }
+        rc.compareRanges=function(first, second, type, interval){
+            var modifier = type=="week"?7:type=="halfmonth"?14:30;
+            rc.compareRangesFirstDate2=new Date(first.getFullYear(), first.getMonth(), (parseInt(first.getDate())+modifier));
+            rc.compareRangesSecondDate2=new Date(second.getFullYear(), second.getMonth(), (parseInt(second.getDate())+modifier));
+            var endDate1 = rc.convertDate(rc.compareRangesFirstDate2),
+                endDate2 = rc.convertDate(rc.compareRangesSecondDate2);
+            leadFactory.getSpecificRange(rc.convertDate(first), endDate1, interval).then(data=>{
+                rc.firstGraphData[0]=data.data;
+                rc.firstGraphLabels=data.labels;
+                //console.log(data.labels);
+                leadFactory.getSpecificRange(rc.convertDate(second), endDate2, interval).then(data2=>{
+                    rc.firstGraphData[1]=data2.data;
+                    console.log(data2.data.length==data.data.length);
+                })
             });
-        }
+        };
 
-        function convertDate(d){
-            var yr=d.getFullYear(),
-                mn=d.getMonth().length>1?(parseInt(d.getMonth())+1).toString():"0"+(parseInt(d.getMonth())+1).toString(),
-                day=parseInt(d.getDate())>9?d.getDate():"0"+d.getDate();
-            return yr+"/"+mn+"/"+day;
-        }
-
-        function convertToHourly(stats){
-            //console.log(stats);
-            var output=[];
-            for(var i=0;i<stats.length;i++){
-                var hr = stats[i].time.split(":")[0];
-                if(output[output.length-1]==undefined||output[output.length-1].time!==hr){
-                    output.push({leads: stats[i].leads, time: hr})
-                }else{
-                    output[output.length-1].leads=parseInt(output[output.length-1].leads)+parseInt(stats[i].leads);
-                }
-            }
-
-            return output;
-        }
-
-        function convertToHalfHour(stats){
-            var output=[];
-            for(var i=0;i<stats.length;i++){
-                var hr = stats[i].time.split(":")[0],
-                    hlf = stats[i].time.split(":")[1];
-                if(output[output.length-1]==undefined||parseInt(hlf)==0||hlf=="30"){
-                    output.push({leads: stats[i].leads, time: hr+":"+hlf})
-                }else{
-                    output[output.length-1].leads=parseInt(output[output.length-1].leads)+parseInt(stats[i].leads);
-                }
-            }
-            return output;
-        }
-
-        function fixTime(stats, type){
-            if(type=="hourly"){
-                for(var i=0;i<stats.length;i++){
-                    stats[i].time=parseInt(stats[i].time);
-                    if(stats[i].time>12){
-                        stats[i].time-=12;
-                        stats[i].time+="pm"
-                    }else if(stats[i].time==12){
-                        stats[i].time+="pm"
-                    }else{
-                        stats[i].time+="am";
-                    }
-                }
-            }else{
-                for(var i=0;i<stats.length;i++){
-                    var hr = parseInt(stats[i].time.split(":")[0]),
-                        min = stats[i].time.split(":")[1],
-                        ext = "";
-                    if(hr>12){
-                        hr-=12;
-                        ext="pm"
-                    }else if(hr==12){
-                        ext="pm"
-                    }else{
-                        ext="am";
-                    }
-                    stats[i].time=hr+":"+min+ext;
-                }
-            }
-            return stats;
-        }
-
-        function getSpecificRange(startDay, endDay, interval){
-            var start = new Date(startDay)/1000,
-                end = new Date(endDay)/1000,
-                outputData={},
-                total=0;
-            rc.secondGraphData = [];
-            rc.secondGraphLabels = [];
-            $http.get('leadData').then(function(results){
-                var data = results.data.byDate;
-                for(var i=0;i<data.length;i++){
-                    var epochStart = new Date(data[i].date)/1000;
-                    if(epochStart>=start&&epochStart<=end){
-                        //console.log(dataDay);
-                        var stats = interval=="quarterly"?data[i].stats:interval=="hourly"?convertToHourly(data[i].stats):convertToHalfHour(data[i].stats);
-                        stats = fixTime(stats, interval);
-                        for(var j=0;j<stats.length;j++){
-                            if(outputData[stats[j].time.replace(":", ".")]==undefined){
-                                outputData[stats[j].time.replace(":", ".")]=stats[j].leads;
-                            }else{
-                                outputData[stats[j].time.replace(":", ".")]=(parseInt(outputData[stats[j].time.replace(":", ".")]) + parseInt(stats[j].leads)).toString()
-                            }
-
-                        }
-
-                    }
-                }
-                for(var d in outputData){
-                    rc.secondGraphData.push(outputData[d]);
-                    rc.secondGraphLabels.push(d)
-                    total+=parseInt(outputData[d]);
-                }
-                rc.secondGraphTotals=total;
+        rc.getSpecificRange=function(start, end, type) {
+            leadFactory.getSpecificRange(start, end, type).then(data=> {
+                rc.secondGraphData = data.data;
+                rc.secondGraphLabels = data.labels;
+                rc.secondGraphTotals = data.total;
             });
-        }
+        };
 
-        getSpecificDay(convertDate(rc.searchDay), rc.specificInterval);
+        rc.getSpecificDay=function(day, interval){
+            leadFactory.getSpecificDay(day, interval).then(data=>{
+                rc.thirdGraphData=data.data;
+                rc.thirdGraphLabels=data.labels;
+                rc.thirdGraphTotals=data.total;
+            });
+        };
+
+        $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
+        $scope.series = ['Series A', 'Series B'];
+        $scope.data = [
+            [65, 59, 80, 81, 56, 55, 40],
+            [28, 48, 40, 19, 86, 27, 90]
+        ];
+        $scope.onClick = function (points, evt) {
+            console.log(points, evt);
+        };
+        $scope.datasetOverride = [{ yAxisID: 'y-axis-1' }, { yAxisID: 'y-axis-2' }];
+
+        rc.lineGraphOptions = {
+            scales: {
+                yAxes: [
+                    {
+                        id: 'y-axis-1',
+                        type: 'linear',
+                        display: true,
+                        position: 'left'
+                    },
+                    {
+                        id: 'y-axis-2',
+                        type: 'linear',
+                        display: true,
+                        position: 'right'
+                    }
+                ]
+            }
+        };
+
+        rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval);
         rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly');
+        rc.compareRanges(rc.compareRangesFirstDate, rc.compareRangesSecondDate, rc.rangeCompareLength, rc.compareInterval)
     }
 
 }());
