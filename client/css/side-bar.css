@@ -5,19 +5,35 @@
     margin-right: 0;
     margin-left: 0;
 }
-.absolute-wrapper{
-    position: absolute;
+/*
+    Sometimes the sub menus get too large for the page and prevent the menu from scrolling, limiting functionality
+    A quick fix is to change .side-menu to
+
+    -> position:absolute
+
+    and uncomment the code below.
+    You also need to uncomment
+
+    -> <div class="absolute-wrapper"> </div> in the html file
+
+    you also need to tweek the animation. Just uncomment the code in that section
+    --------------------------------------------------------------------------------------------------------------------
+    If you want to make it really neat i suggest you look into an alternative like http://areaaperta.com/nicescroll/
+    This will allow the menu to say fixed on body scoll and scoll on the side bar if it get to large
+*/
+/*.absolute-wrapper{
+    position: fixed;
     width: 300px;
     height: 100%;
     background-color: #f8f8f8;
     border-right: 1px solid #e7e7e7;
-}
+}*/
 
 .side-menu {
-    position: absolute;
+    position: fixed;
     width: 300px;
     height: 100%;
-    background-color: #d1d0cf;
+    background-color: #f8f8f8;
     border-right: 1px solid #e7e7e7;
 }
 .side-menu .navbar {
@@ -28,19 +44,18 @@
     border-bottom: 1px solid #e7e7e7;
 }
 .side-menu .navbar-nav .active a {
-    background-color: #d1d0cf;
+    background-color: transparent;
     margin-right: -1px;
-    border-right: 5px solid rgba(0, 180, 218, 1);
+    border-right: 5px solid #5c89b4;
 }
 .side-menu .navbar-nav li {
     display: block;
     width: 100%;
     border-bottom: 1px solid #e7e7e7;
-    padding: 0;
 }
 .side-menu .navbar-nav li a {
-    background-color: #d1d0cf;
     padding: 15px;
+    font-size: large;
 }
 .side-menu .navbar-nav li a .glyphicon {
     padding-right: 10px;
@@ -64,7 +79,7 @@
 }
 .side-menu #dropdown .panel-body {
     padding: 0;
-    background-color: #d1d0cf;
+    background-color: #f3f3f3;
 }
 .side-menu #dropdown .panel-body .navbar-nav {
     width: 100%;
@@ -79,7 +94,6 @@
 .side-menu #dropdown .panel-body .panel > a {
     margin-left: -20px;
     padding-left: 35px;
-    background-color: #d1d0cf; !important
 }
 .side-menu #dropdown .panel-body .panel-body {
     margin-left: -15px;
@@ -91,7 +105,7 @@
     border-bottom: 1px solid #e7e7e7;
 }
 .side-menu #search-trigger {
-    background-color: #d1d0cf;
+    background-color: #f3f3f3;
     border: 0;
     border-radius: 0;
     position: absolute;
@@ -137,13 +151,12 @@
     top: 0;
     border: 0;
     border-radius: 0;
-    background-color: #d1d0cf;
+    background-color: #f3f3f3;
     padding: 15px 18px;
 }
 /* Main body section */
 .side-body {
     margin-left: 300px;
-    height: 100%;
 }
 /* small screen */
 @media (max-width: 768px) {
@@ -221,10 +234,10 @@
         position: fixed;
         left: -300px;
         width: 300px;
-        top: 180px;
+        top: 243px;
         height: 100%;
         border-right: 1px solid #e7e7e7;
-        background-color: #d1d0cf;
+        background-color: #f8f8f8;
         -moz-animation: slideout 300ms forwards;
         -o-animation: slideout 300ms forwards;
         -webkit-animation: slideout 300ms forwards;
@@ -232,6 +245,16 @@
         -webkit-transform-style: preserve-3d;
         transform-style: preserve-3d;
     }
+    /* Uncomment for scrollable menu -> see top comment */
+    /*.absolute-wrapper{
+          width:285px;
+          -moz-animation: slideout 300ms forwards;
+          -o-animation: slideout 300ms forwards;
+          -webkit-animation: slideout 300ms forwards;
+          animation: slideout 300ms forwards;
+          -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+      }*/
     @-moz-keyframes bodyslidein {
         0% {
             left: 0;
@@ -283,7 +306,7 @@
     /* Slide side body*/
     .side-body {
         margin-left: 5px;
-        margin-top: 70px;
+        margin-top: 55px;
         position: relative;
         -moz-animation: bodyslideout 300ms forwards;
         -o-animation: bodyslideout 300ms forwards;
@@ -304,15 +327,10 @@
     .navbar-toggle {
         border: 0;
         float: left;
-        padding: 0;
+        padding: 18px;
         margin: 0;
-        margin-right: 20px;
-        border-right: solid black 1px;
         border-radius: 0;
-        background-color: rgba(0, 120, 147, 1);
-        color: white;
-        width: 50px;
-        min-height: 55px;
+        background-color: #f3f3f3;
     }
     /* Search */
     #search .panel-body .navbar-form {
@@ -325,17 +343,15 @@
         /* this is probably redundant */
         position: fixed;
         z-index: 3;
-        background-color: #d1d0cf;
+        background-color: #f8f8f8;
     }
     /* Dropdown tweek */
     #dropdown .panel-body .navbar-nav {
         margin: 0;
-        background-color: #d1d0cf;
     }
 }
-
 .navbar-custom-grey{
-    background-color: #d1d0cf;
+    background-color: #f8f8f8;
     color: black;
 }
 .navbar-nav>li>a {

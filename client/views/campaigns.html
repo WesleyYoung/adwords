@@ -2,11 +2,16 @@
 <!--<campaign ng-repeat="campaign in cc.campaigns" campaign-info="campaign" ng-click="cc.toggleOnStat(campaign.id)"></campaign>-->
 <!--<button type="button" ng-click="cc.getCampaigns()">Get Campaigns</button>-->
 <div ng-if="cc.campaignGrid.data!==undefined" class="alert alert-success custom-slide">
+    <md-toolbar>
+        <h1 class="md-toolbar-tools">
+            <md-button class="" href="#/campaignView/all">All Ad Groups</md-button>
+        </h1>
+    </md-toolbar>
     <div ui-grid="cc.campaignGrid" class="my-grid"
          ui-grid-pagination ui-grid-resize-columns>
     </div>
 </div>
 
-<loading-screen ng-if="cc.campaignGrid.data==undefined" info="{title: 'Getting Campaigns From AdWords...'}"></loading-screen>
+<loading-screen ng-if="cc.campaignGrid.data==undefined" title="'Getting Data From AdWords...'" timed="false"></loading-screen>
 
 <!-- ui-grid-selection ui-grid-edit -->

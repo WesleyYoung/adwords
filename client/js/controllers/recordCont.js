@@ -7,12 +7,87 @@
     angular.module('recordController', [])
         .controller('recordController', recordController);
 
-    recordController.$inject = ["$http", "$scope", "leadFactory"];
+    recordController.$inject = ["$http", "$scope", "leadFactory", "$timeout"];
 
-    function recordController($http, $scope, leadFactory) {
+    function recordController($http, $scope, leadFactory, $timeout) {
         var rc = this;
 
+        function randomColorNumb(){
+            return Math.floor((Math.random()*255)+1);
+        }
+
         rc.convertDate=leadFactory.convertDate;
+
+        rc.isLoading=true;
+
+        $timeout(function(){
+            rc.isLoading=false;
+        }, 1500);
+        
+        //These need to become The objects for each graph
+        rc.graphA ={
+            data: [],
+            makeup: [],
+            labels: [],
+            totals: 0,
+            types: ["chart-bar", "chart-doughnut"],
+            type: "chart-bar",
+            options: {
+                scales: {
+                    yAxes: [
+                        {
+                            id: 'y-axis-1',
+                            type: 'linear',
+                            display: true,
+                            position: 'left'
+                        },
+                        {
+                            id: 'y-axis-2',
+                            type: 'linear',
+                            display: true,
+                            position: 'right'
+                        }
+                    ]
+                }
+            },
+            datasetOverride: [
+            {
+                label: "Bar chart",
+                borderWidth: 1,
+                type: 'bar',
+                borderColor: "rgba("+randomColorNumb()+","+randomColorNumb()+","+randomColorNumb()+",1)",
+                backgroundColor: "rgba("+randomColorNumb()+","+randomColorNumb()+","+randomColorNumb()+",1)"
+            },
+            {
+                label: "Line chart",
+                borderWidth: 3,
+                hoverBackgroundColor: "rgba(255,99,132,0.4)",
+                hoverBorderColor: "rgba(255,99,132,1)",
+                borderColor: "rgba(255,0,0,1)",
+                type: 'line'
+            }
+        ]
+        };
+
+        
+        rc.firstGraph={
+            data: [
+                [],
+                []
+            ],
+            labels: [],
+            series: []
+        };
+        
+        rc.secondGraph={
+            data: [],
+            labels: [],
+            series: [],
+            searchDates: {
+                start: new Date("2016","5","1"),
+                end: new Date("2016","5","15")
+            }
+        };
 
         rc.firstGraphLabels = [];
         rc.firstGraphData = [
@@ -20,7 +95,10 @@
             []
         ];
 
-        console.log(leadFactory.metaData());
+        leadFactory.getMetaData().then(data=>{
+            rc.metaMinDate=new Date(data.minDate);
+            rc.metaMaxDate=new Date(data.maxDate);
+        });
             
         rc.firstGraphSeries=["1st Range", "2nd Range"];
         rc.compareRangesFirstDate = new Date("2016","5","1");
@@ -45,8 +123,11 @@
         
         rc.singleScroll=function(dir){
             var mod=dir=="next"?1:-1;
-            rc.searchDay=new Date(rc.searchDay.getFullYear(), rc.searchDay.getMonth(), parseInt(rc.searchDay.getDate())+mod)
-            rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)
+            var newDate=new Date(rc.searchDay.getFullYear(), rc.searchDay.getMonth(), parseInt(rc.searchDay.getDate())+mod);
+            if (dir=='next'&&newDate/1000<=rc.metaMaxDate/1000||dir=='prev'&&newDate/1000>=rc.metaMinDate/1000){
+                rc.searchDay=newDate;
+                rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)
+            }
         };
 
         rc.compareRanges=function(first, second, type, interval){
@@ -61,7 +142,6 @@
                 //console.log(data.labels);
                 leadFactory.getSpecificRange(rc.convertDate(second), endDate2, interval).then(data2=>{
                     rc.firstGraphData[1]=data2.data;
-                    console.log(data2.data.length==data.data.length);
                 })
             });
         };
@@ -76,9 +156,14 @@
 
         rc.getSpecificDay=function(day, interval){
             leadFactory.getSpecificDay(day, interval).then(data=>{
-                rc.thirdGraphData=data.data;
-                rc.thirdGraphLabels=data.labels;
-                rc.thirdGraphTotals=data.total;
+                //$scope.$apply(function(){
+                //console.log(data.contacted);
+                    rc.graphA.data=data.data;
+                    //rc.graphA.data[1]=data.contacted;
+                    rc.graphA.labels=data.labels;
+                    rc.graphA.totals=data.total;
+                    rc.graphA.makeUp=data.makeUp;
+                //})
             });
         };
 
@@ -113,8 +198,8 @@
         };
 
         rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval);
-        rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly');
-        rc.compareRanges(rc.compareRangesFirstDate, rc.compareRangesSecondDate, rc.rangeCompareLength, rc.compareInterval)
+        //rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly');
+        //rc.compareRanges(rc.compareRangesFirstDate, rc.compareRangesSecondDate, rc.rangeCompareLength, rc.compareInterval)
     }
 
 }());

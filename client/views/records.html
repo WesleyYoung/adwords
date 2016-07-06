@@ -1,4 +1,6 @@
-<div ng-cloak style="max-width: 1250px; width: 100%;">
+
+<loading-screen title="'Preparing Reports...'" ng-if="rc.isLoading"></loading-screen>
+<div ng-show="!rc.isLoading" ng-cloak style="max-width: 1250px; width: 100%;">
         <md-content>
                 <md-tabs md-dynamic-height md-border-bottom>
                         <md-tab label="Singular Day">
@@ -9,18 +11,27 @@
                                                 </h2>
                                         </md-toolbar>
                                         <div layout="row">
-
-                                                <md-datepicker class="" md-min-date="rc.metaData.minDate" flex md-open-on-focus ng-model="rc.searchDay" md-placeholder="Please choose a date"></md-datepicker>
+                                                <md-datepicker class="" md-min-date="rc.metaMinDate" md-max-date="rc.metaMaxDate" flex md-open-on-focus ng-model="rc.searchDay" md-placeholder="Please choose a date"></md-datepicker>
                                                 <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
                                                 <span flex></span>
+                                                <!--<md-input-container style="margin: 0">
+                                                        <md-select ng-model="rc.graphA.type" style="height: 100%; width: 150px">
+                                                                <md-option ng-repeat="type in rc.graphA.types" value="{{type}}">
+                                                                        {{type.split("-")[1]}}
+                                                                </md-option>
+                                                        </md-select>
+                                                </md-input-container>-->
                                                 <md-button class="md-raised md-accent" ng-click="rc.singleScroll('prev')">< Prev</md-button>
                                                 <md-button class="md-raised md-warn" ng-click="rc.singleScroll('next')">Next ></md-button>
                                         </div>
 
-                                        <canvas id="bar3" class="chart chart-bar" chart-data="rc.thirdGraphData" chart-labels="rc.thirdGraphLabels" chart-series="'Leads'" chart-colors="rc.graphColors"></canvas>
+                                        <canvas ng-if="rc.graphA.type=='chart-bar'" id="bar3" class="chart chart-bar" chart-data="rc.graphA.data" chart-labels="rc.graphA.labels" chart-series="'Leads'" chart-colors="rc.graphColors" chart-options="rc.graphA.options"></canvas>
+                                        <!--<canvas ng-if="rc.graphA.type=='chart-doughnut'" id="doughnut3" class="chart chart-doughnut" chart-data="rc.graphA.makeUp" chart-labels="rc.graphA.labels" chart-series="'Leads'" chart-colors="rc.graphColors" chart-options="rc.graphA.options"></canvas>-->
+
+
                                         <md-toolbar class="md-primary">
                                                 <h2 class="md-toolbar-tools">
-                                                        <span>Total leads {{rc.thirdGraphTotals}}</span>
+                                                        <span>Total leads {{rc.graphA.totals}}</span>
 
                                                         <span flex></span>
                                                         <md-radio-group layout="row" ng-model="rc.specificInterval">

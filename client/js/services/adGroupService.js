@@ -34,7 +34,7 @@
                     <button class="campaign-cell">
                         <i ng-if="row.entity.status=='ENABLED'&&!grid.appScope.isWaiting" ng-click="grid.appScope.toggleOnState(row.entity.id)" class="fa fa-toggle-on fa-2x" style="color: green;"></i>
                         <i ng-if="row.entity.status=='PAUSED'&&!grid.appScope.isWaiting" ng-click="grid.appScope.toggleOnState(row.entity.id)" class="fa fa-toggle-off fa-2x" style="color: grey;"></i>
-                        <i ng-if="grid.appScope.isWaiting" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                        <div ng-if="grid.appScope.isWaiting" layout="row" layout-sm="column" layout-align="space-around"><md-progress-circular  md-mode="indeterminate" class="md-warn md-hue-3" md-diameter="25px"></md-progress-circular></div>
                     </button>
                     `
                 },

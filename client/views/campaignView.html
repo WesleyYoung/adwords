@@ -1,11 +1,12 @@
-<div style="width: 100%; height: 55px; background-color: white; border: none">
-    <a href="#/campaigns" class="btn btn-info" style="height: 100%; width: 200px; text-underline: none; border-radius: 0; border: none"><i class="fa fa-chevron-left" aria-hidden="true"></i> Back to Campaigns</a>
-</div>
-
 <div ng-if="cvc.adGroupGrid.data!==undefined" class="alert alert-success slide">
+    <md-toolbar>
+        <h1 class="md-toolbar-tools">
+            <md-button href="#/campaigns" class="">< Back to Campaigns</md-button>
+        </h1>
+    </md-toolbar>
     <div ui-grid="cvc.adGroupGrid" class="my-grid"
          ui-grid-pagination ui-grid-resize-columns>
     </div>
 </div>
 
-<loading-screen ng-if="cvc.adGroupGrid.data==undefined" info="{title: 'Getting AdGroups From AdWords...'}"></loading-screen>
+<loading-screen ng-if="cvc.adGroupGrid.data==undefined" title="'Getting AdGroups From AdWords...'" timed="true"></loading-screen>

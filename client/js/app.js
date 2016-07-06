@@ -51,7 +51,7 @@
         .config(["$stateProvider", "$urlRouterProvider", "ChartJsProvider",
             function ($stateProvider, $urlRouterProvider, ChartJsProvider) {
 
-                ChartJsProvider.setOptions({ colors : [ '#008AFF', '#008AFF', '#008AFF',  '#008AFF', '#008AFF', '#008AFF', '#008AFF'] });
+                //ChartJsProvider.setOptions({ colors : [ '#008AFF', '#008AFF', '#008AFF',  '#008AFF', '#008AFF', '#008AFF', '#008AFF'] });
 
                 // App States (pages)
                 $stateProvider

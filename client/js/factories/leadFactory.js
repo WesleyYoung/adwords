@@ -17,9 +17,11 @@
             for(var i=0;i<stats.length;i++){
                 var hr = stats[i].time.split(":")[0];
                 if(output[output.length-1]==undefined||output[output.length-1].time!==hr){
-                    output.push({leads: stats[i].leads, time: hr+":00"})
+                    output.push({leads: stats[i].leads, time: hr+":00", makeUp: stats[i].makeUp, contacted: stats[i].contacted})
                 }else{
                     output[output.length-1].leads=parseInt(output[output.length-1].leads)+parseInt(stats[i].leads);
+                    output[output.length-1].contacted=parseInt(output[output.length-1].contacted)+parseInt(stats[i].contacted);
+                    output[output.length-1].makeUp=parseFloat(output[output.length-1].makeUp)+parseFloat(stats[i].makeUp);
                 }
             }
 
@@ -28,22 +30,27 @@
 
         function convertToHalfHour(stats){
             var output=[];
+            //console.log(stats);
             for(var i=0;i<stats.length;i++){
                 var hr = stats[i].time.split(":")[0],
                     hlf = stats[i].time.split(":")[1],
                     newHlf=(parseInt(hlf)-15).toString();
+
+                //console.log(makeup);
                 if(newHlf=="0")newHlf="00";
                 if(output[output.length-1]==undefined||parseInt(hlf)==0||hlf=="30"){
                     if(parseInt(hlf)==0||hlf=="30"){
-                        output.push({leads: stats[i].leads, time: hr+":"+hlf})
+                        output.push({leads: stats[i].leads, time: hr+":"+hlf, makeUp: stats[i].makeUp, contacted: stats[i].contacted})
                     }else{
-                        output.push({leads: stats[i].leads, time: hr+":"+newHlf})
+                        output.push({leads: stats[i].leads, time: hr+":"+newHlf, makeUp: stats[i].makeUp, contacted: stats[i].contacted})
                     }
                 }else{
                     if(output[output.length-1].time==hr+":"+newHlf){
                         output[output.length-1].leads=parseInt(output[output.length-1].leads)+parseInt(stats[i].leads);
+                        output[output.length-1].contacted=parseInt(output[output.length-1].contacted)+parseInt(stats[i].contacted);
+                        output[output.length-1].makeUp=parseFloat(output[output.length-1].makeUp)+parseFloat(stats[i].makeUp);
                     }else{
-                        output.push({leads: stats[i].leads, time: hr+":"+newHlf})
+                        output.push({leads: stats[i].leads, time: hr+":"+newHlf, makeUp: stats[i].makeUp, contacted: stats[i].contacted})
                     }
                 }
             }
@@ -87,35 +94,26 @@
         function getSpecificDay(day, interval){
             var timeLabels = times.filterTime(interval);
             var found=false;
-            var output = {data: [], labels: timeLabels, total: 0};
+            var output = {data: [], labels: timeLabels, total: 0, makeup: [], contacted: []};
+            var report = interval=="hourly"?"statsByHr":interval=="quarterly"?"statsBy15":"statsBy30";
             return $http.get('/leadData').then((results)=>{
-                console.log(results.data);
-                var data = results.data.byDate;
+                //console.log(results.data);
+                var data = results.data.leadData;
                 for(var i=0;i<data.length;i++){
                     if(data[i].date==day){
-                        found=true;
-                        var stats = interval=="quarterly"?data[i].stats:interval=="hourly"?convertToHourly(data[i].stats):convertToHalfHour(data[i].stats);
-                        stats = fixTime(stats, interval);
-                        var tempObj={};
-                        for(var j=0;j<stats.length;j++){
-                            //output.data.push(stats[j].leads);
-                            if(tempObj[stats[j].time]==undefined){
-                                tempObj[stats[j].time]=stats[j].leads
-                            }else{
-                                tempObj[stats[j].time]=parseInt(tempObj[stats[j].time])+parseInt(stats[j].leads)
-                            }
-                        }
                         for(var j=0;j<timeLabels.length;j++){
-                            if(tempObj[timeLabels[j]]==undefined){
-                                output.data.push("0")
-                            }else{
-                                output.data.push(tempObj[timeLabels[j]])
+                            if(data[i][report][timeLabels[j]]!==undefined){
+                                output.data.push(data[i][report][timeLabels[j]].leads);
+                                output.contacted.push(data[i][report][timeLabels[j]].contacted);
+                                output.makeup.push(data[i][report][timeLabels[j]].makeup);
                             }
                         }
-                        output.total+=data[i].totalLeads;
+                        output.total=data[i].total;
+
                         i=data.length;
                     }
                 }
+                //console.log(output);
                 return output;
             });
         }
@@ -190,8 +188,8 @@
                     return results.data.byDate;
                 });
             },
-            metaData: function(){
-                    getLeadData().then(results=>{
+            getMetaData: function(){
+                    return getLeadData().then(results=>{
                         return results.metaData;
                     })
             },
