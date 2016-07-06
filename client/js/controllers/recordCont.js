@@ -32,6 +32,21 @@
             totals: 0,
             types: ["chart-bar", "chart-doughnut"],
             type: "chart-bar",
+            onclick: function(data, event){
+                if(data[0]!==undefined){
+                    console.log(data);
+                    var label = data[0]._model.label,
+                        chartData=this.chartData,
+                        labels = data[0]._xScale.ticks,
+                        value;
+                    for(var i=0;i<labels.length;i++){
+                        if(label==labels[i]){
+                            value=chartData[i];
+                        }
+                    }
+                    console.log(label, value)
+                }
+            },
             options: {
                 scales: {
                     yAxes: [
@@ -39,7 +54,11 @@
                             id: 'y-axis-1',
                             type: 'linear',
                             display: true,
-                            position: 'left'
+                            position: 'left',
+                            scaleLabel: {
+                                display: false,
+                                labelString: "Leads"
+                            }
                         },
                         {
                             id: 'y-axis-2',
@@ -54,19 +73,31 @@
             {
                 label: "Bar chart",
                 borderWidth: 1,
-                type: 'bar',
-                borderColor: "rgba("+randomColorNumb()+","+randomColorNumb()+","+randomColorNumb()+",1)",
-                backgroundColor: "rgba("+randomColorNumb()+","+randomColorNumb()+","+randomColorNumb()+",1)"
-            },
-            {
-                label: "Line chart",
-                borderWidth: 3,
-                hoverBackgroundColor: "rgba(255,99,132,0.4)",
-                hoverBorderColor: "rgba(255,99,132,1)",
-                borderColor: "rgba(255,0,0,1)",
-                type: 'line'
+                type: 'bar'
+                //borderColor: "rgba("+randomColorNumb()+","+randomColorNumb()+","+randomColorNumb()+",1)",
+                //backgroundColor: "rgba("+randomColorNumb()+","+randomColorNumb()+","+randomColorNumb()+",1)"
             }
+            //{
+            //    label: "Line chart",
+            //    borderWidth: 3,
+            //    hoverBackgroundColor: "rgba(255,99,132,0.4)",
+            //    hoverBorderColor: "rgba(255,99,132,1)",
+            //    borderColor: "rgba(255,0,0,1)",
+            //    type: 'line'
+            //}
         ]
+        };
+        rc.getSpecificDay=function(day, interval){
+            leadFactory.getSpecificDay(day, interval).then(data=>{
+                //$scope.$apply(function(){
+                //console.log(data.contacted);
+                rc.graphA.data=data.data;
+                //rc.graphA.data[1]=data.contacted;
+                rc.graphA.labels=data.labels;
+                rc.graphA.totals=data.total;
+                rc.graphA.makeup=data.makeup;
+                //})
+            });
         };
 
         
@@ -154,18 +185,7 @@
             });
         };
 
-        rc.getSpecificDay=function(day, interval){
-            leadFactory.getSpecificDay(day, interval).then(data=>{
-                //$scope.$apply(function(){
-                //console.log(data.contacted);
-                    rc.graphA.data=data.data;
-                    //rc.graphA.data[1]=data.contacted;
-                    rc.graphA.labels=data.labels;
-                    rc.graphA.totals=data.total;
-                    rc.graphA.makeUp=data.makeUp;
-                //})
-            });
-        };
+
 
         $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
         $scope.series = ['Series A', 'Series B'];

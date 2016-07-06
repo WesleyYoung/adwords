@@ -363,7 +363,6 @@ app.get('/leadData', function(req, res){
     fs.readFile('leadData.json', (err,data)=>{
         res.end(data);
     });
-
 });
 
 var port = 3343;
@@ -371,42 +370,104 @@ server.listen(port, function() {
     console.log(`App listening on port ${port}...`);
 });
 
-function adjustLeadData(){
+function formatLeadData(){
+    var times = [
+        "0:00am", "0:15am", "0:30am", "0:45am", "1:00am", "1:15am", "1:30am", "1:45am", "2:00am", "2:15am",
+        "2:30am", "2:45am", "3:00am", "3:15am", "3:30am", "3:45am", "4:00am", "4:15am", "4:30am", "4:45am",
+        "5:00am", "5:15am", "5:30am", "5:45am", "6:00am", "6:15am", "6:30am", "6:45am", "7:00am", "7:15am",
+        "7:30am", "7:45am", "8:00am", "8:15am", "8:30am", "8:45am", "9:00am", "9:15am", "9:30am", "9:45am",
+        "10:00am", "10:15am", "10:30am", "10:45am", "11:00am", "11:15am", "11:30am", "11:45am", "12:00pm",
+        "12:15pm", "12:30pm", "12:45pm", "1:00pm", "1:15pm", "1:30pm", "1:45pm", "2:00pm", "2:15pm", "2:30pm",
+        "2:45pm", "3:00pm", "3:15pm", "3:30pm", "3:45pm", "4:00pm", "4:15pm", "4:30pm", "4:45pm", "5:00pm", "5:15pm",
+        "5:30pm", "5:45pm", "6:00pm", "6:15pm", "6:30pm", "6:45pm", "7:00pm", "7:15pm", "7:30pm", "7:45pm", "8:00pm",
+        "8:15pm", "8:30pm", "8:45pm", "9:00pm", "9:15pm", "9:30pm", "9:45pm", "10:00pm", "10:15pm", "10:30pm",
+        "10:45pm", "11:00pm", "11:15pm", "11:30pm", "11:45pm"
+    ];
     converter.fromFile("campaignStats.csv", (err, result)=>{
         if(err)throw err;
-        //console.log(result);
-        var results = result,
-            leadsByDate = [],
-            leadsBy15Monthly = {};
-        for(var i=0;i<results.length;i++){
-            var goodDate = results[i].DATE;
-            if(leadsByDate[leadsByDate.length-1]==undefined||leadsByDate[leadsByDate.length-1].date!==goodDate){
-                leadsByDate.push({date: goodDate, stats: [{leads: results[i]['LIST RECORDS'], time: results[i]['QUARTER HOUR']}]})
+        var output=[];
+        for(var i=0;i<result.length;i++){
+            var date=result[i]['DATE'],
+                leads = result[i]['LIST RECORDS'],
+                contacted = result[i]['CONTACTED count'],
+                quarter= result[i]['QUARTER HOUR'].timeFix(),
+                half = result[i]['QUARTER HOUR'].timeFix("halfhour"),
+                hour = result[i]['QUARTER HOUR'].timeFix("hour"),
+                index = output.length==0?0:output.length-1;
+            if(output[index]==undefined||output[index].date!==date){
+                output.push({
+                    date: date,
+                    statsBy15: {[quarter]: {leads: leads, contacted: contacted, time: quarter}},
+                    statsBy30: {[half]: {leads: leads, contacted: contacted, time: half}},
+                    statsByHr: {[hour]: {leads: leads, contacted: contacted, time: hour}},
+                    total: leads
+                });
             }else{
-                leadsByDate[leadsByDate.length-1].stats.push({leads: results[i]['LIST RECORDS'], time: results[i]['QUARTER HOUR']})
+                output[index].statsBy15[quarter]={leads: leads, contacted: contacted, time: quarter};
+                if(output[index].statsBy30[half]==undefined){output[index].statsBy30[half]={leads: leads, contacted: contacted, time: half};}
+                else {output[index].statsBy30[half].leads+=leads;output[index].statsBy30[half].contacted+=contacted;}
+                if(output[index].statsByHr[hour]==undefined)output[index].statsByHr[hour]={leads: leads, contacted: contacted, time: hour};
+                else {output[index].statsByHr[hour].leads+=leads;output[index].statsByHr[hour].contacted+=contacted;}
+                output[index].total+=leads;
             }
         }
-        for(var i=0;i<leadsByDate.length;i++){
-            var count = 0;
-            for(var j=0;j<leadsByDate[i].stats.length;j++){
-                count+=parseInt(leadsByDate[i].stats[j].leads);
-                if(leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]==undefined){
-                    leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]=leadsByDate[i].stats[j].leads;
-                }else{
-                    leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]= parseInt(leadsByDate[i].stats[j].leads + leadsBy15Monthly[leadsByDate[i].stats[j].time.replace(":", ".")]);
+        
+        var minDate=new Date(output[0].date.split("/")[0], parseInt(output[0].date.split("/")[1])-1, output[0].date.split("/")[2]),
+            maxDate=new Date(output[output.length-1].date.split("/")[0], parseInt(output[output.length-1].date.split("/")[1])-1, output[output.length-1].date.split("/")[2]);
+        
+        for(var i=0;i<output.length;i++){
+            var attArr=["statsBy15", "statsBy30", "statsByHr"];
+                
+            var total = output[i].total;
+            for(var j=0;j<attArr.length;j++){
+                var dynamicTime = times.filterTime(attArr[j]);
+                for(var obj in output[i][attArr[j]]){
+                    output[i][attArr[j]][obj].makeup = parseFloat(((output[i][attArr[j]][obj].leads/total)*100).toFixed(2));
+                }
+                for(var k=0;k<dynamicTime.length;k++){
+                    if(output[i][attArr[j]][dynamicTime[k]]==undefined){
+                        output[i][attArr[j]][dynamicTime[k]]={leads: 0, contacted: 0, time: 0}
+                    }
                 }
             }
-            leadsByDate[i].totalLeads=count;
+            
         }
-        var minDate=new Date(leadsByDate[0].date.split("/")[0], parseInt(leadsByDate[0].date.split("/")[1])-1, leadsByDate[0].date.split("/")[2]),
-            maxDate=new Date(leadsByDate[leadsByDate.length-1].date.split("/")[0], parseInt(leadsByDate[leadsByDate.length-1].date.split("/")[1])-1, leadsByDate[leadsByDate.length-1].date.split("/")[2])
-
-        fs.writeFile('leadData.json', JSON.stringify({byDate: leadsByDate, by15Monthly: leadsBy15Monthly, metaData: {minDate: minDate, maxDate: maxDate}}), (err)=>{
-           if(err)throw err;
-
-        });
-
-    });
+        //console.log(output);
+        fs.writeFile('leadData.json', JSON.stringify({metaData: {minDate: minDate, maxDate: maxDate}, leadData: output}))
+    })
 }
 
-adjustLeadData();
+formatLeadData();
+
+Array.prototype.filterTime=function(int){
+    var t = this;
+    if(int=="statsBy15"){
+        return t;
+    }else if(int=="statsByHr"){
+        return t.filter(function(item){
+            return item.split(":")[1][0]=="0"
+        })
+    }else{
+        return t.filter(function(item){
+            //console.log(item);
+            return item.split(":")[1][0]=="0"||item.split(":")[1][0]=="3"
+        })
+    }
+};
+
+String.prototype.timeFix=function(interval){
+    var d = this;
+    var hr = parseInt(d.split(":")[0]),
+        min = parseInt(d.split(":")[1]),
+        ext = "am";
+    if(hr>=12){
+        ext="pm";
+        if(hr>12)hr-=12;
+    }
+    if(interval=="hour")min=0;
+    else if(interval=="halfhour"){
+        min==0?min=0:min==15?min=0:min==30?min=30:min=30;
+    }
+    if(min<10)min="0"+min;
+    return hr+":"+min+ext;
+};
