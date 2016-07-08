@@ -30,8 +30,8 @@
             makeup: [],
             labels: [],
             totals: 0,
-            types: ["chart-bar", "chart-doughnut"],
-            type: "chart-bar",
+            types: ["Lead Totals", "Lead Percentage"],
+            type: "Lead Totals",
             onclick: function(data, event){
                 if(data[0]!==undefined){
                     console.log(data);
@@ -101,13 +101,47 @@
         };
 
         
-        rc.firstGraph={
-            data: [
-                [],
-                []
-            ],
+        rc.graphB={
+            data: [],
+            totals: 0,
+            types: ["Lead Totals", "Individual Totals"],
+            type: "Lead Totals",
+            onclick: function(data, event){
+
+            },
             labels: [],
-            series: []
+            series: [],
+            indData: [],
+            indContacted: [],
+            indMakeup: []
+        };
+
+        rc.getSpecificRange=function(start, end, type) {
+            leadFactory.getSpecificRange(start, end, type).then(data=> {
+                rc.graphB.data=data.data;
+                rc.graphB.indData=data.individualData;
+                rc.graphB.indContacted=data.individualContacted;
+                rc.graphB.labels=data.labels;
+                rc.graphB.totals=data.totals;
+                rc.graphB.series=data.individualSeries;
+            });
+        };
+        
+
+        rc.compareRanges=function(first, second, type, interval){
+            var modifier = type=="week"?7:type=="halfmonth"?14:30;
+            rc.compareRangesFirstDate2=new Date(first.getFullYear(), first.getMonth(), (parseInt(first.getDate())+modifier));
+            rc.compareRangesSecondDate2=new Date(second.getFullYear(), second.getMonth(), (parseInt(second.getDate())+modifier));
+            var endDate1 = rc.convertDate(rc.compareRangesFirstDate2),
+                endDate2 = rc.convertDate(rc.compareRangesSecondDate2);
+            leadFactory.getSpecificRange(rc.convertDate(first), endDate1, interval).then(data=>{
+                rc.firstGraphData[0]=data.data;
+                rc.firstGraphLabels=data.labels;
+                //console.log(data.labels);
+                leadFactory.getSpecificRange(rc.convertDate(second), endDate2, interval).then(data2=>{
+                    rc.firstGraphData[1]=data2.data;
+                })
+            });
         };
         
         rc.secondGraph={
@@ -161,29 +195,20 @@
             }
         };
 
-        rc.compareRanges=function(first, second, type, interval){
-            var modifier = type=="week"?7:type=="halfmonth"?14:30;
-            rc.compareRangesFirstDate2=new Date(first.getFullYear(), first.getMonth(), (parseInt(first.getDate())+modifier));
-            rc.compareRangesSecondDate2=new Date(second.getFullYear(), second.getMonth(), (parseInt(second.getDate())+modifier));
-            var endDate1 = rc.convertDate(rc.compareRangesFirstDate2),
-                endDate2 = rc.convertDate(rc.compareRangesSecondDate2);
-            leadFactory.getSpecificRange(rc.convertDate(first), endDate1, interval).then(data=>{
-                rc.firstGraphData[0]=data.data;
-                rc.firstGraphLabels=data.labels;
-                //console.log(data.labels);
-                leadFactory.getSpecificRange(rc.convertDate(second), endDate2, interval).then(data2=>{
-                    rc.firstGraphData[1]=data2.data;
-                })
-            });
+        rc.rangeScroll=function(dir){
+            var mod=dir=="next"?1:-1;
+            var newDate1=new Date(rc.searchRangeStart.getFullYear(), rc.searchRangeStart.getMonth(), parseInt(rc.searchRangeStart.getDate())+mod),
+                newDate2=new Date(rc.searchRangeEnd.getFullYear(), rc.searchRangeEnd.getMonth(), parseInt(rc.searchRangeEnd.getDate())+mod);
+            if (dir=='next'&&newDate1/1000<=rc.metaMaxDate/1000||dir=='prev'&&newDate1/1000>=rc.metaMinDate/1000){
+                if(dir=='next'&&newDate2/1000<=rc.metaMaxDate/1000||dir=='prev'&&newDate2/1000>=rc.metaMinDate/1000){
+                    rc.searchRangeStart=newDate1;
+                    rc.searchRangeEnd=newDate2;
+                    rc.getSpecificRange(rc.searchRangeStart,rc.searchRangeEnd, rc.rangeInterval);
+                }
+            }
         };
 
-        rc.getSpecificRange=function(start, end, type) {
-            leadFactory.getSpecificRange(start, end, type).then(data=> {
-                rc.secondGraphData = data.data;
-                rc.secondGraphLabels = data.labels;
-                rc.secondGraphTotals = data.total;
-            });
-        };
+        
 
 
 
@@ -218,8 +243,10 @@
         };
 
         rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval);
-        //rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly');
+        rc.getSpecificRange(rc.searchRangeStart,rc.searchRangeEnd, 'quarterly');
         //rc.compareRanges(rc.compareRangesFirstDate, rc.compareRangesSecondDate, rc.rangeCompareLength, rc.compareInterval)
+        
+        
     }
 
 }());

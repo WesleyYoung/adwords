@@ -1,6 +1,6 @@
 
 <loading-screen title="'Preparing Reports...'" ng-if="rc.isLoading"></loading-screen>
-<div ng-show="!rc.isLoading" ng-cloak style="max-width: 1250px; width: 100%;">
+<div ng-show="!rc.isLoading" ng-cloak style="max-width: 1000px; width: 95%;">
         <md-content>
                 <md-tabs md-dynamic-height md-border-bottom>
                         <md-tab label="Singular Day">
@@ -15,9 +15,9 @@
                                                 <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificDay(rc.convertDate(rc.searchDay), rc.specificInterval)">Submit</md-button>
                                                 <span flex></span>
                                                 <md-input-container style="margin: 0">
-                                                        <md-select ng-model="rc.graphA.type" style="height: 100%; width: 150px; font-size: large">
+                                                        <md-select ng-model="rc.graphA.type" style="height: 100%; width: 200px; font-size: large">
                                                                 <md-option ng-repeat="type in rc.graphA.types" value="{{type}}">
-                                                                        {{type.split("-")[1]}}
+                                                                        {{type}}
                                                                 </md-option>
                                                         </md-select>
                                                 </md-input-container>
@@ -25,9 +25,8 @@
                                                 <md-button class="md-raised md-warn" ng-click="rc.singleScroll('next')">Next ></md-button>
                                         </div>
 
-                                        <canvas ng-if="rc.graphA.type=='chart-bar'" id="bar3" chart-click="rc.graphA.onclick" class="chart chart-bar" chart-data="rc.graphA.data" chart-labels="rc.graphA.labels" chart-series="'Leads'" chart-colors="rc.graphColors" chart-options="rc.graphA.options" chart-dataset-override="rc.graphA.datasetOverride"></canvas>
-                                        <canvas ng-if="rc.graphA.type=='chart-doughnut'" id="doughnut3" class="chart chart-doughnut" chart-data="rc.graphA.makeup" chart-labels="rc.graphA.labels" chart-series="'Leads'" chart-colors="rc.graphColors"></canvas>
-
+                                        <canvas ng-if="rc.graphA.type=='Lead Totals'" id="bar3" chart-click="rc.graphA.onclick" class="chart chart-bar" chart-data="rc.graphA.data" chart-labels="rc.graphA.labels" chart-series="'Leads'" chart-colors="rc.graphColors" chart-options="rc.graphA.options" chart-dataset-override="rc.graphA.datasetOverride"></canvas>
+                                        <canvas ng-if="rc.graphA.type=='Lead Percentage'" id="doughnut3" class="chart chart-doughnut" chart-data="rc.graphA.makeup" chart-labels="rc.graphA.labels" chart-series="'Leads'" chart-colors="rc.graphColors"></canvas>
 
                                         <md-toolbar class="md-primary">
                                                 <h2 class="md-toolbar-tools">
@@ -47,32 +46,44 @@
                                 <md-content class="">
                                         <md-toolbar class="md-primary">
                                                 <h2 class="md-toolbar-tools">
-                                                        <p>Range</p>
+                                                        <p>From {{rc.searchRangeStart|shortDate}} to {{rc.searchRangeEnd|shortDate}}</p>
                                                 </h2>
                                         </md-toolbar>
                                         <div layout="row">
-                                                <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchRangeStart" md-placeholder="Start"></md-datepicker>
-                                                <md-datepicker class="" flex md-open-on-focus ng-model="rc.searchRangeEnd" md-placeholder="End"></md-datepicker>
+                                                <md-datepicker md-min-date="rc.metaMinDate" md-max-date="rc.metaMaxDate" class="" flex md-open-on-focus ng-model="rc.searchRangeStart" md-placeholder="Start"></md-datepicker>
+                                                <md-datepicker md-min-date="rc.metaMinDate" md-max-date="rc.metaMaxDate" class="" flex md-open-on-focus ng-model="rc.searchRangeEnd" md-placeholder="End"></md-datepicker>
+                                                <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificRange(rc.searchRangeStart,rc.searchRangeEnd, rc.rangeInterval)">Submit</md-button>
                                                 <span flex></span>
-                                                <md-button  style="width: 200px" class="md-raised md-primary" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), rc.rangeInterval)">Submit</md-button>
+                                                <md-input-container style="margin: 0">
+                                                        <md-select ng-model="rc.graphB.type" style="height: 100%; width: 200px; font-size: large">
+                                                                <md-option ng-repeat="type in rc.graphB.types" value="{{type}}">
+                                                                        {{type}}
+                                                                </md-option>
+                                                        </md-select>
+                                                </md-input-container>
+                                                <md-button class="md-raised md-accent" ng-click="rc.rangeScroll('prev')">< Prev</md-button>
+                                                <md-button class="md-raised md-warn" ng-click="rc.rangeScroll('next')">Next ></md-button>
                                         </div>
 
-                                        <canvas id="bar2" class="chart chart-bar" chart-data="rc.secondGraphData" chart-labels="rc.secondGraphLabels"></canvas>
+                                        <canvas ng-if="rc.graphB.type=='Lead Totals'" id="bar2" class="chart chart-bar" chart-data="rc.graphB.data" chart-labels="rc.graphB.labels"></canvas>
+
+                                        <canvas ng-if="rc.graphB.type=='Individual Totals'" id="line2" class="chart chart-line chart-xs" chart-data="rc.graphB.indData" chart-labels="rc.graphB.labels" chart-series="rc.graphB.series" auto-legend></canvas>
+
                                         <md-toolbar class="md-primary">
                                                 <h2 class="md-toolbar-tools">
-                                                        <span>Total leads {{rc.secondGraphTotals}}</span>
+                                                        <span>Total leads {{rc.graphB.totals}}</span>
 
                                                         <span flex></span>
                                                         <md-radio-group layout="row" ng-model="rc.rangeInterval">
-                                                                <md-radio-button value="quarterly" class="md-accent" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'quarterly')">Quarterly</md-radio-button>
-                                                                <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), '1/2 Hour')">1/2 Hour</md-radio-button>
-                                                                <md-radio-button value="hourly" ng-click="rc.getSpecificRange(rc.convertDate(rc.searchRangeStart),rc.convertDate(rc.searchRangeEnd), 'hourly')">Hourly</md-radio-button>
+                                                                <md-radio-button value="quarterly" class="md-accent" ng-click="rc.getSpecificRange(rc.searchRangeStart,rc.searchRangeEnd, 'quarterly')">Quarterly</md-radio-button>
+                                                                <md-radio-button value="halfhour" class="md-warn" ng-click="rc.getSpecificRange(rc.searchRangeStart,rc.searchRangeEnd, '1/2 Hour')">1/2 Hour</md-radio-button>
+                                                                <md-radio-button value="hourly" ng-click="rc.getSpecificRange(rc.searchRangeStart,rc.searchRangeEnd, 'hourly')">Hourly</md-radio-button>
                                                         </md-radio-group>
                                                 </h2>
                                         </md-toolbar>
                                 </md-content>
                         </md-tab>
-                        <md-tab label="Compare Range">
+                        <!--<md-tab label="Compare Range">
                                 <md-content class="">
                                         <md-toolbar class="md-primary">
                                         <h2 class="md-toolbar-tools">
@@ -105,7 +116,7 @@
                                                 </h2>
                                         </md-toolbar>
                                 </md-content>
-                        </md-tab>
+                        </md-tab>-->
                 </md-tabs>
         </md-content>
 </div>

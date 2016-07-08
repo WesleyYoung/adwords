@@ -21,17 +21,17 @@
     If you want to make it really neat i suggest you look into an alternative like http://areaaperta.com/nicescroll/
     This will allow the menu to say fixed on body scoll and scoll on the side bar if it get to large
 */
-/*.absolute-wrapper{
+.absolute-wrapper{
     position: fixed;
     width: 300px;
     height: 100%;
     background-color: #f8f8f8;
     border-right: 1px solid #e7e7e7;
-}*/
+}
 
 .side-menu {
     position: fixed;
-    width: 300px;
+    width: 200px;
     height: 100%;
     background-color: #f8f8f8;
     border-right: 1px solid #e7e7e7;
@@ -156,7 +156,7 @@
 }
 /* Main body section */
 .side-body {
-    margin-left: 300px;
+    margin-left: 200px;
 }
 /* small screen */
 @media (max-width: 768px) {
@@ -246,7 +246,7 @@
         transform-style: preserve-3d;
     }
     /* Uncomment for scrollable menu -> see top comment */
-    /*.absolute-wrapper{
+    .absolute-wrapper{
           width:285px;
           -moz-animation: slideout 300ms forwards;
           -o-animation: slideout 300ms forwards;
@@ -254,7 +254,7 @@
           animation: slideout 300ms forwards;
           -webkit-transform-style: preserve-3d;
           transform-style: preserve-3d;
-      }*/
+      }
     @-moz-keyframes bodyslidein {
         0% {
             left: 0;
@@ -308,6 +308,7 @@
         margin-left: 5px;
         margin-top: 55px;
         position: relative;
+        height: 100%;
         -moz-animation: bodyslideout 300ms forwards;
         -o-animation: bodyslideout 300ms forwards;
         -webkit-animation: bodyslideout 300ms forwards;

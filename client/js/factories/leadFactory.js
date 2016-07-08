@@ -119,42 +119,53 @@
         }
 
         function getSpecificRange(startDay, endDay, interval){
-            var timeLabels = times.filterTime(interval);
-            //console.log(timeLabels);
-            var start = new Date(startDay)/1000,
-                end = new Date(endDay)/1000,
-                outputData={},
-                output = {data: [], labels: timeLabels, total: 0},
-                total=0;
-            return $http.get('leadData').then(function(results){
-                var data = results.data.byDate;
+            var timeLabels = times.filterTime(interval),
+                day1 = new Date(startDay)/1000,
+                day2 = new Date(endDay)/1000;
+            var found=false;
+            var output = {
+                data: [], 
+                labels: timeLabels, 
+                totals: 0,
+                makeup: [], 
+                contacted: [], 
+                individualData: [], 
+                individualContacted: [], 
+                individualMakeup: [],
+                individualSeries: []
+            };
+            var report = interval=="hourly"?"statsByHr":interval=="quarterly"?"statsBy15":"statsBy30";
+            return $http.get('/leadData').then((results)=>{
+                //console.log(results.data);
+                var data = results.data.leadData;
                 for(var i=0;i<data.length;i++){
-                    var epochStart = new Date(data[i].date)/1000;
-                    if(epochStart>=start&&epochStart<=end){
-                        //console.log(dataDay);
-                        var stats = interval=="quarterly"?data[i].stats:interval=="hourly"?convertToHourly(data[i].stats):convertToHalfHour(data[i].stats);
-                        //console.log(stats);
-                        stats = fixTime(stats, interval);
-                        for(var j=0;j<stats.length;j++){
-                            if(outputData[stats[j].time.replace(":", ".")]==undefined){
-                                outputData[stats[j].time.replace(":", ".")]=stats[j].leads;
-                            }else{
-                                outputData[stats[j].time.replace(":", ".")]=(parseInt(outputData[stats[j].time.replace(":", ".")]) + parseInt(stats[j].leads)).toString()
+                    var testDate = new Date(data[i].date)/1000;
+                    if(testDate>=day1&&testDate<=day2){
+                        output.individualData.push([]);
+                        output.individualContacted.push([]);
+                        output.individualMakeup.push([]);
+                        var index = output.individualData.length-1;
+                        for(var j=0;j<timeLabels.length;j++){
+                            if(data[i][report][timeLabels[j]]!==undefined){
+                                output.individualData[index].push(data[i][report][timeLabels[j]].leads);
+                                output.individualContacted[index].push(data[i][report][timeLabels[j]].contacted);
+                                output.individualMakeup[index].push(data[i][report][timeLabels[j]].makeup);
                             }
-
                         }
-
+                        output.individualSeries.push(data[i].date.shortDate());
+                        output.totals+=data[i].total;
                     }
                 }
-                //console.log(outputData);
-                for(var i=0;i<timeLabels.length;i++){
-                    if(outputData[timeLabels[i].replace(":", ".")]==undefined){
-                        output.data.push("0")
-                    }else{
-                        output.data.push(outputData[timeLabels[i].replace(":", ".")]);
-                        output.total+=parseInt(outputData[timeLabels[i].replace(":", ".")]);
+                for(var i=0;i<output.individualData.length;i++){
+                    for(var j=0;j<output.individualData[i].length;j++){
+                        if(output.data[j]==undefined){
+                            output.data.push(output.individualData[i][j])
+                        }else{
+                            output.data[j]+=output.individualData[i][j];
+                        }
                     }
                 }
+                //console.log(output);
                 return output;
             });
         }
@@ -173,6 +184,19 @@
                     return item.split(":")[1][0]=="0"||item.split(":")[1][0]=="3"
                 })
             }
+        };
+
+        String.prototype.shortDate=function(){
+            var t = new Date(this),
+                monthNames = [
+                    "January", "February", "March",
+                    "April", "May", "June", "July",
+                    "August", "September", "October",
+                    "November", "December"
+                ];
+
+            return monthNames[parseInt(t.getMonth())] + " " + t.getDate()
+
         };
         
         function getLeadData(){
